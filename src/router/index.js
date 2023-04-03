@@ -89,12 +89,6 @@ export const constantRoutes = [
         component: () => import('@/views/flow/settlement/index'),
         meta: { title: '车辆结算信息', icon: 'tree' }
       },
-      {
-        path: 'truck-space',
-        name: 'Truck-space',
-        component: () => import('@/views/flow/truck-space/index'),
-        meta: { title: '车位管理', icon: 'tree' }
-      }
     ]
   },
   {
@@ -102,13 +96,13 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/info/enroll',
     name: 'Info',
-    meta: { title: '车辆信息管理', icon: 'el-icon-s-help' },
+    meta: { title: '车位信息管理', icon: 'el-icon-s-help' },
     children: [
       {
-        path: 'enroll',
-        name: 'Enroll',
-        component: () => import('@/views/info/enroll/index'),
-        meta: { title: '车辆登记', icon: 'tree' }
+        path: 'truck-space',
+        name: 'Truck-space',
+        component: () => import('@/views/info/truck-space/index'),
+        meta: { title: '车位信息', icon: 'tree' }
       },
       {
         path: 'count',

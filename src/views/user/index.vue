@@ -23,8 +23,6 @@
                 </el-table-column>
                 <el-table-column prop="nickname" label="昵称">
                 </el-table-column>
-                <!-- <el-table-column prop="phone" label="电话">
-                </el-table-column> -->
                 <el-table-column prop="email" label="邮箱">
                 </el-table-column>
                 <!-- <el-table-column prop="user_pic" label="头像">
@@ -37,8 +35,8 @@
                 </el-table-column>
             </el-table>
             <!-- 分页 -->
-            <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum"
-                :limit.sync="queryParams.pageSize" @pagination="getList" />
+            <!-- <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum"
+                :limit.sync="queryParams.pageSize" @pagination="getList" /> -->
         </el-card>
 
         <!-- 添加用户 -->

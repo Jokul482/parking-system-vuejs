@@ -67,3 +67,47 @@ div:focus {
 .mt-24 {
   margin-top: 24px;
 }
+
+.card-header-not-border{
+  margin-bottom: 24px;
+  .el-card__header{
+    border-bottom: none;
+  }
+  .el-card__body{
+    height: 100%;
+  }
+}
+.ht-row{
+  .el-col{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-right: 1px solid #E8E8E8;
+    .label{
+      color: #999;
+      font-size: 14px;
+      font-weight: 400;
+    }
+    .content{
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      margin-bottom: 8px;
+      .num{
+        font-size: 24px;
+        font-weight: Bold;
+      }
+      .append{
+        margin-left: 10px;
+      }
+    }
+    .error{
+      font-size: 14px;
+      font-weight: 400;
+      color: #FA5555;
+    }
+  }
+  .no-border{
+    border: none;
+  }
+}
