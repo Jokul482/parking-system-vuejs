@@ -47,3 +47,26 @@
 .el-range-separator {
   box-sizing: content-box;
 }
+
+.el-card {
+  .el-card__header {
+    color: #333333;
+    font-weight: bold;
+    font-size: 18px;
+    padding: 12px 20px;
+  }
+}
+.card-center {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pagination-container {
+  margin-top: 30px;
+}
+.pagination-container .el-pagination {
+	right: 40px;
+	position: absolute;
+}

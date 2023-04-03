@@ -51,31 +51,88 @@ export const constantRoutes = [
       path: 'dashboard',
       name: 'Dashboard',
       component: () => import('@/views/dashboard/index'),
-      meta: { title: 'Dashboard', icon: 'dashboard' }
+      meta: { title: '首页', icon: 'dashboard' }
     }]
   },
 
-  // {
-  //   path: '/example',
-  //   component: Layout,
-  //   redirect: '/example/table',
-  //   name: 'Example',
-  //   meta: { title: 'Example', icon: 'el-icon-s-help' },
-  //   children: [
-  //     {
-  //       path: 'table',
-  //       name: 'Table',
-  //       component: () => import('@/views/table/index'),
-  //       meta: { title: 'Table', icon: 'table' }
-  //     },
-  //     {
-  //       path: 'tree',
-  //       name: 'Tree',
-  //       component: () => import('@/views/tree/index'),
-  //       meta: { title: 'Tree', icon: 'tree' }
-  //     } 
-  //   ]
-  // },
+  {
+    path: '/user',
+    component: Layout,
+    redirect: '/user/index',
+    // name: 'User',
+    // meta: { title: '用户管理', icon: 'el-icon-s-help' },
+    children: [
+      {
+        path: 'manage',
+        name: 'Manage',
+        component: () => import('@/views/user/index'),
+        meta: { title: '用户管理', icon: 'tree' }
+      }
+    ]
+  },
+  {
+    path: '/flow',
+    component: Layout,
+    redirect: '/flow/register',
+    name: 'Flow',
+    meta: { title: '车辆进出管理', icon: 'el-icon-s-help' },
+    children: [
+      {
+        path: 'register',
+        name: 'Register',
+        component: () => import('@/views/flow/register/index'),
+        meta: { title: '车辆登记', icon: 'tree' }
+      },
+      {
+        path: 'settlement',
+        name: 'Settlement',
+        component: () => import('@/views/flow/settlement/index'),
+        meta: { title: '车辆结算信息', icon: 'tree' }
+      },
+      {
+        path: 'truck-space',
+        name: 'Truck-space',
+        component: () => import('@/views/flow/truck-space/index'),
+        meta: { title: '车位管理', icon: 'tree' }
+      }
+    ]
+  },
+  {
+    path: '/info',
+    component: Layout,
+    redirect: '/info/enroll',
+    name: 'Info',
+    meta: { title: '车辆信息管理', icon: 'el-icon-s-help' },
+    children: [
+      {
+        path: 'enroll',
+        name: 'Enroll',
+        component: () => import('@/views/info/enroll/index'),
+        meta: { title: '车辆登记', icon: 'tree' }
+      },
+      {
+        path: 'count',
+        name: 'Count',
+        component: () => import('@/views/info/count/index'),
+        meta: { title: '数据统计', icon: 'tree' }
+      }
+    ]
+  },
+  {
+    path: '/charge',
+    component: Layout,
+    redirect: '/charge',
+    // name: 'Charge',
+    // meta: { title: '收费统计', icon: 'el-icon-s-help' },
+    children: [
+      {
+        path: 'charge',
+        name: 'Charge',
+        component: () => import('@/views/charge/index'),
+        meta: { title: '收费统计', icon: 'tree' }
+      }
+    ]
+  },
   // {
   //   path: 'external-link',
   //   component: Layout,
