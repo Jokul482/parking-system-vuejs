@@ -10,13 +10,13 @@
                 </el-col>
                 <el-col>
                     <div class="content">
-                        <div class="num" style="color:#21d59b;">111</div>
+                        <div class="num" style="color:#999;">111</div>
                     </div>
                     <div class="label">当前空闲车位</div>
                 </el-col>
                 <el-col>
                     <div class="content">
-                        <div class="num" style="color:#999;">1</div>
+                        <div class="num" style="color:#21d59b;">1</div>
                     </div>
                     <div class="label">正在使用车位</div>
                 </el-col>
@@ -25,6 +25,7 @@
         <el-card class="box-card mt-24">
             <div slot="header" class="card-center">
                 <span>车位统计列表</span>
+                <el-button type="primary" @click="exportExcel">一键导出</el-button>
             </div>
             <el-form :inline="true" :model="form" class="demo-form-inline">
                 <el-form-item label="区域：">
@@ -44,8 +45,8 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary">搜索</el-button>
-                    <el-button>重置</el-button>
+                    <el-button type="primary" @click="queryParams.pageNum = 1,getList()">搜索</el-button>
+                    <el-button @click="cancel">重置</el-button>
                 </el-form-item>
             </el-form>
             <el-table :data="tableData" border style="width: 100%">
@@ -64,8 +65,8 @@
                 </el-table-column>
             </el-table>
             <!-- 分页 -->
-            <!-- <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum"
-                :limit.sync="queryParams.pageSize" @pagination="getList" /> -->
+            <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum"
+                :limit.sync="queryParams.pageSize" @pagination="getList" />
         </el-card>
     </div>
 </template>
@@ -90,7 +91,7 @@ export default {
                     id: 1,
                     carNumber: 'A10',
                     area: 'A区',
-                    type: '小型车',
+                    type: '小型车车位',
                     chargeHour: '3',
                     status: '1',
                 }

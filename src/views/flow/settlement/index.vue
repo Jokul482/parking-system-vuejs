@@ -19,8 +19,8 @@
                         </el-select>
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="primary">搜索</el-button>
-                        <el-button>重置</el-button>
+                        <el-button type="primary" @click="queryParams.pageNum = 1,getList()">搜索</el-button>
+                        <el-button @click="cancel">重置</el-button>
                     </el-form-item>
                 </div>
             </el-form>
@@ -28,6 +28,7 @@
         <el-card class="box-card mt-24">
             <div slot="header" class="card-center">
                 <span>车辆结算列表</span>
+                <el-button type="primary" @click="exportExcel">一键导出</el-button>
             </div>
             <el-table :data="tableData" border style="width: 100%">
                 <el-table-column type="index" label="序号" width="50">
@@ -63,8 +64,8 @@
                 </el-table-column>
             </el-table>
             <!-- 分页 -->
-            <!-- <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum"
-                :limit.sync="queryParams.pageSize" @pagination="getList" /> -->
+            <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum"
+                :limit.sync="queryParams.pageSize" @pagination="getList" />
         </el-card>
     </div>
 </template>
