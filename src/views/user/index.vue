@@ -1,19 +1,19 @@
 <template>
     <div>
         <el-card class="box-card" header="条件筛选">
-            <el-form :inline="true" :model="form" class="demo-form-inline">
-                <el-form-item label="角色类型：">
+            <el-form :inline="true" :model="form" ref="searchRef" class="demo-form-inline">
+                <el-form-item label="角色类型：" prop="roleType">
                     <el-select v-model="form.roleType" placeholder="请选择角色类型" style="width: 240px;">
                         <el-option label="管理员" value="0"></el-option>
                         <el-option label="普通用户" value="1"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="用户名：">
-                    <el-input v-model="form.userName" placeholder="用户名"></el-input>
+                <el-form-item label="用户名：" prop="userName">
+                    <el-input v-model="form.userName" placeholder="请输入用户名"></el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="queryParams.pageNum = 1, getList()">搜索</el-button>
-                    <el-button @click="cancel">重置</el-button>
+                    <el-button @click="cancel('searchRef')">重置</el-button>
                 </el-form-item>
             </el-form>
         </el-card>
@@ -142,7 +142,7 @@ export default {
             }).then(({data}) => {
                 this.loading = false;
                 this.tableData = data;
-            })
+            }).catch(err => this.loading = false)
         },
         onSubmit() {
 
@@ -151,10 +151,9 @@ export default {
 
         },
         // 重置
-        cancel() {
-            this.form = {
-                user: ""
-            }
+        cancel(formName) {
+            this.$refs[formName].resetFields();
+            this.getList();
         }
     }
 }
