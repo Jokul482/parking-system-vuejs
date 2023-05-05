@@ -10,6 +10,16 @@ export function getUserList(params) {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
         params
-        // data: qs.stringify(params)
+    })
+}
+// 获取用户数据
+export function getUserInfo(params) {
+    return request({
+        url: baseUrl + '/getUserInfo',
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        params
     })
 }

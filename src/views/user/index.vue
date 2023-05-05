@@ -2,10 +2,10 @@
     <div>
         <el-card class="box-card" header="条件筛选">
             <el-form :inline="true" :model="form" ref="searchRef" class="demo-form-inline">
-                <el-form-item label="角色类型：" prop="roleType">
-                    <el-select v-model="form.roleType" placeholder="请选择角色类型" style="width: 240px">
-                        <el-option label="管理员" value="0"></el-option>
-                        <el-option label="普通用户" value="1"></el-option>
+                <el-form-item label="角色类型：" prop="role_type">
+                    <el-select v-model="form.role_type" placeholder="请选择角色类型" style="width: 240px">
+                        <el-option label="管理员" :value="0"></el-option>
+                        <el-option label="普通用户" :value="1"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="用户名：" prop="userName">
@@ -20,7 +20,7 @@
         <el-card class="box-card mt-24">
             <div slot="header" class="card-center">
                 <span>用户列表</span>
-                <el-button type="primary" @click="dialogVisible = true">添加</el-button>
+                <el-button type="primary" @click="addUserDialog">添加</el-button>
             </div>
             <el-table :data="tableData" v-loading="loading" border style="width: 100%">
                 <el-table-column type="index" label="序号" width="50">
@@ -58,7 +58,7 @@
         </el-card>
 
         <!-- 添加用户 -->
-        <el-dialog title="添加用户" :visible.sync="dialogVisible" width="30%" @close="resetForm('ruleForm')">
+        <el-dialog :title="title" :visible.sync="dialogVisible" width="30%" @close="resetForm('ruleForm')">
             <el-form label-position="right" :model="ruleForm" :rules="rules" ref="ruleForm" label-width="95px"
                 empty-text="暂无数据">
                 <el-form-item label="角色类型：" prop="role_type">
@@ -93,7 +93,7 @@
 </template>
 
 <script>
-import { getUserList } from "@/api/userInfo";
+import { getUserList, getUserInfo } from "@/api/userInfo";
 import { addUser } from "@/api/user";
 export default {
     components: {},
@@ -110,6 +110,7 @@ export default {
                 pageSize: 10,
             },
             tableData: [],
+            title: "添加用户",
             // 添加用户
             ruleForm: {
                 role_type: "",
@@ -150,23 +151,51 @@ export default {
                 })
                 .catch((err) => (this.loading = false));
         },
+        addUserDialog() {
+            this.dialogVisible = true;
+            this.title = "添加用户";
+        },
         // 确认添加
         onSubmit(formName) {
-            this.$refs[formName].validate((valid) => {
-                if (valid) {
-                    addUser(this.ruleForm).then(({ status, message }) => {
-                        if (status === 0) {
-                            this.msgSuccess(message);
-                            this.dialogVisible = false;
-                            this.getList();
-                        }
-                    })
-                }
-            });
+            if (this.title === "添加用户") {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        addUser(this.ruleForm).then(({ status, message }) => {
+                            if (status === 0) {
+                                this.msgSuccess(message);
+                                this.dialogVisible = false;
+                                this.getList();
+                            }
+                        })
+                    }
+                });
+            } else {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        // addUser(this.ruleForm).then(({ status, message }) => {
+                        //     if (status === 0) {
+                        //         this.msgSuccess(message);
+                        //         this.dialogVisible = false;
+                        //         this.getList();
+                        //     }
+                        // })
+                    }
+                });
+            }
         },
         resetForm(formName) {
             this.$refs[formName].resetFields();
             this.dialogVisible = false;
+        },
+        // 编辑
+        handleUpdate(id) {
+            this.title = "编辑用户";
+            this.dialogVisible = true;
+            getUserInfo({id}).then(({status, data}) => {
+                if(status === 0) {
+                    this.ruleForm = data;
+                }
+            })
         },
         // 重置
         cancel(formName) {
