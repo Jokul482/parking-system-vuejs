@@ -12,3 +12,14 @@ export function login(data) {
     data: qs.stringify(data)
   })
 }
+// 添加用户
+export function addUser(data) {
+  return request({
+    url: baseUrl + '/reguser',
+    method: 'post',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}

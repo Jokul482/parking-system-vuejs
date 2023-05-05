@@ -17,6 +17,21 @@ import '@/permission' // permission control
 
 // 全局组件挂载
 Vue.component('Pagination', Pagination)
+Vue.prototype.msgSuccess = function (msg) {
+  this.$message({ showClose: true, message: msg, type: "success" });
+}
+
+Vue.prototype.msgError = function (msg) {
+  this.$message({ showClose: true, message: msg, type: "error" });
+}
+
+Vue.prototype.msgWarning = function (msg) {
+  this.$message({ showClose: true, message: msg, type: "warning" });
+}
+
+Vue.prototype.msgInfo = function (msg) {
+  this.$message.info(msg);
+}
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api

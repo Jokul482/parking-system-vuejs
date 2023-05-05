@@ -13,10 +13,8 @@ const service = axios.create({
 // request interceptor
 service.interceptors.request.use(
   config => {
-    console.log(store.getters.token);
     // do something before request is sent
     if (store.getters.token) {
-      console.log(getToken());
       //让每个请求携带令牌
       //['X-Token']是一个自定义头密钥
       //请根据实际情况进行修改
@@ -68,11 +66,11 @@ service.interceptors.response.use(
       }
       return Promise.reject(new Error(res.message || 'Error'))
     } else {
-      Message({
-        message: res.message,
-        type: 'success',
-        duration: 1000
-      })
+      // Message({
+      //   message: res.message,
+      //   type: 'success',
+      //   duration: 1000
+      // })
       return res
     }
   },
