@@ -23,3 +23,14 @@ export function getUserInfo(params) {
         params
     })
 }
+// 更新用户数据
+export function postUpdateUserInfo(data) {
+    return request({
+        url: baseUrl + '/updateUserInfo',
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data: qs.stringify(data)
+    })
+}

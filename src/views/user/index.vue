@@ -4,12 +4,11 @@
             <el-form :inline="true" :model="form" ref="searchRef" class="demo-form-inline">
                 <el-form-item label="角色类型：" prop="role_type">
                     <el-select v-model="form.role_type" placeholder="请选择角色类型" style="width: 240px">
-                        <el-option label="管理员" :value="0"></el-option>
-                        <el-option label="普通用户" :value="1"></el-option>
+                        <el-option v-for="item in option" :key="item.role_type" :label="item.label" :value="item.role_type"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="用户名：" prop="userName">
-                    <el-input v-model="form.userName" placeholder="请输入用户名"></el-input>
+                <el-form-item label="用户名：" prop="username">
+                    <el-input v-model="form.username" placeholder="请输入用户名"></el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="(queryParams.pageNum = 1), getList()">搜索</el-button>
@@ -63,8 +62,7 @@
                 empty-text="暂无数据">
                 <el-form-item label="角色类型：" prop="role_type">
                     <el-select v-model="ruleForm.role_type" placeholder="请选择角色类型" style="width: 240px">
-                        <el-option label="管理员" value="0"></el-option>
-                        <el-option label="普通用户" value="1"></el-option>
+                        <el-option v-for="item in option" :key="item.role_type" :label="item.label" :value="item.role_type"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="用户名：" prop="username">
@@ -93,17 +91,19 @@
 </template>
 
 <script>
-import { getUserList, getUserInfo } from "@/api/userInfo";
+import { getUserList, getUserInfo, postUpdateUserInfo } from "@/api/userInfo";
 import { addUser } from "@/api/user";
+import { roleType } from "@/utils/basic-dictionary"
 export default {
     components: {},
     data() {
         return {
             // 查询条件
             form: {
-                roleType: "",
-                userName: "",
+                role_type: "",
+                username: "",
             },
+            option: roleType,
             total: 1,
             queryParams: {
                 pageNum: 1,
@@ -142,8 +142,8 @@ export default {
         getList() {
             this.loading = true;
             getUserList({
-                role_type: this.form?.roleType,
-                username: this.form?.userName,
+                role_type: this.form?.role_type,
+                username: this.form?.username,
             })
                 .then(({ data }) => {
                     this.loading = false;
@@ -172,13 +172,13 @@ export default {
             } else {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        // addUser(this.ruleForm).then(({ status, message }) => {
-                        //     if (status === 0) {
-                        //         this.msgSuccess(message);
-                        //         this.dialogVisible = false;
-                        //         this.getList();
-                        //     }
-                        // })
+                        postUpdateUserInfo(this.ruleForm).then(({ status, message }) => {
+                            if (status === 0) {
+                                this.msgSuccess(message);
+                                this.dialogVisible = false;
+                                this.getList();
+                            }
+                        })
                     }
                 });
             }
@@ -194,6 +194,8 @@ export default {
             getUserInfo({id}).then(({status, data}) => {
                 if(status === 0) {
                     this.ruleForm = data;
+                    console.log(this.ruleForm);
+                    console.log(this.option);
                 }
             })
         },
