@@ -3,13 +3,13 @@
         <el-card class="box-card" header="条件筛选">
             <el-form :inline="true" :model="form" class="demo-form-inline">
                 <el-form-item label="角色类型：">
-                    <el-select placeholder="请选择角色类型" style="width: 240px;">
+                    <el-select v-model="form.roleType" placeholder="请选择角色类型" style="width: 240px;">
                         <el-option label="管理员" value="0"></el-option>
                         <el-option label="普通用户" value="1"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="用户名：">
-                    <el-input v-model="form.user" placeholder="用户名"></el-input>
+                    <el-input v-model="form.userName" placeholder="用户名"></el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="queryParams.pageNum = 1, getList()">搜索</el-button>
@@ -22,19 +22,28 @@
                 <span>用户列表</span>
                 <el-button type="primary" @click="dialogVisible = true">添加</el-button>
             </div>
-            <el-table :data="tableData" border style="width: 100%">
+            <el-table :data="tableData" v-loading="loading" border style="width: 100%">
                 <el-table-column type="index" label="序号" width="50">
                 </el-table-column>
-                <el-table-column prop="role" label="角色">
-                    <template slot-scope="scope">
-                        {{ scope.row.role == 0 ? '管理员' : '普通用户' }}
+                <el-table-column prop="role_type" label="角色类型">
+                    <template v-slot="{ column, row }">
+                        {{ row[column.property] == 0 ? '管理员' : '普通用户' }}   
                     </template>
                 </el-table-column>
                 <el-table-column prop="username" label="用户名">
+                    <template v-slot="{ column, row }">
+                        {{ row[column.property] ? row[column.property] : '--' }}   
+                    </template>
                 </el-table-column>
                 <el-table-column prop="nickname" label="昵称">
+                    <template v-slot="{ column, row }">
+                        {{ row[column.property] ? row[column.property] : '--' }}   
+                    </template>
                 </el-table-column>
                 <el-table-column prop="email" label="邮箱">
+                    <template v-slot="{ column, row }">
+                        {{ row[column.property] ? row[column.property] : '--' }}   
+                    </template>
                 </el-table-column>
                 <el-table-column fixed="right" label="操作" width="180" align="center">
                     <template slot-scope="scope">
@@ -44,8 +53,8 @@
                 </el-table-column>
             </el-table>
             <!-- 分页 -->
-            <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum"
-                :limit.sync="queryParams.pageSize" @pagination="getList" />
+            <!-- <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum"
+                :limit.sync="queryParams.pageSize" @pagination="getList" /> -->
         </el-card>
 
         <!-- 添加用户 -->
@@ -80,28 +89,22 @@
 </template>
 
 <script>
+import { getUserList } from "@/api/userInfo"
 export default {
     components: {},
     data() {
         return {
             // 查询条件
             form: {
-                user: ''
+                roleType: "",
+                userName: ""
             },
             total: 1,
             queryParams: {
                 pageNum: 1,
                 pageSize: 10
             },
-            tableData: [
-                {
-                    id: 1,
-                    role: '0',
-                    username: 'admin',
-                    nickname: '管理员',
-                    email: '123@qq.com'
-                }
-            ],
+            tableData: [],
             // 添加用户
             ruleForm: {
                 role: '',
@@ -110,6 +113,7 @@ export default {
                 nickname: '',
                 email: ''
             },
+            loading: false,
             dialogVisible: false,
             rules: {
                 role: [
@@ -126,15 +130,31 @@ export default {
             }
         };
     },
+    created() {
+        this.getList();
+    },
     methods: {
         getList() {
-
+            this.loading = true;
+            getUserList({
+                role_type: this.form?.roleType,
+                username: this.form?.userName
+            }).then(({data}) => {
+                this.loading = false;
+                this.tableData = data;
+            })
         },
         onSubmit() {
 
         },
         addUser() {
 
+        },
+        // 重置
+        cancel() {
+            this.form = {
+                user: ""
+            }
         }
     }
 }
