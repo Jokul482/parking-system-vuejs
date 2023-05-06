@@ -7,7 +7,7 @@ export function getUserList(params) {
     return request({
         url: baseUrl + '/getUserList',
         method: 'get',
-        headers ,
+        headers,
         params
     })
 }
@@ -34,6 +34,6 @@ export function deleteUserInfo(id) {
     return request({
         url: baseUrl + `/deleteUser/${id}`,
         method: 'get',
-        headers,
+        headers
     })
 }

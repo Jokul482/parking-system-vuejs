@@ -12,8 +12,8 @@
                     <el-input v-model="form.phone" placeholder="请输入车主电话" style="width: 240px;"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" @click="queryParams.pageNum = 1,getList()">搜索</el-button>
-                    <el-button @click="cancel">重置</el-button>
+                    <el-button type="primary" @click="queryParams.pageNum = 1, getList()">搜索</el-button>
+                    <el-button @click="cancel('searchRef')">重置</el-button>
                 </el-form-item>
             </el-form>
         </el-card>
@@ -55,83 +55,137 @@
                 :limit.sync="queryParams.pageSize" @pagination="getList" />
         </el-card>
 
-        <!-- 添加用户 -->
-        <el-dialog title="添加用户" :visible.sync="dialogVisible" width="30%">
-            <el-form label-position="left" :model="ruleForm" :rules="rules" ref="ruleForm" label-width="70px"
+        <!-- 添加车辆 -->
+        <el-dialog :title="title" :visible.sync="dialogVisible" width="40%">
+            <el-form label-position="left" :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px"
                 empty-text="暂无数据">
-                <el-form-item label="用户名：">
-                    <el-input v-model="ruleForm.username" autocomplete="off" style="width: 240px;"></el-input>
+                <el-form-item label="车牌号：" prop="plateNumber">
+                    <el-input v-model="ruleForm.plateNumber" autocomplete="off"></el-input>
                 </el-form-item>
-                <el-form-item label="昵称：">
-                    <el-input v-model="ruleForm.nickname" autocomplete="off" style="width: 240px;"></el-input>
+                <el-form-item label="车位号：" prop="carNumber">
+                    <el-input v-model="ruleForm.carNumber" autocomplete="off"></el-input>
                 </el-form-item>
-                <el-form-item label="邮箱：">
-                    <el-input v-model="ruleForm.email" autocomplete="off" style="width: 240px;"></el-input>
+                <el-form-item label="车主姓名：" prop="ownerName">
+                    <el-input v-model="ruleForm.ownerName" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="车主电话：" prop="phone">
+                    <el-input v-model="ruleForm.phone" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="车辆类型：" prop="type">
+                    <el-input v-model="ruleForm.type" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="入场时间：" prop="exittime">
+                    <el-input v-model="ruleForm.exittime" autocomplete="off"></el-input>
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
-                <el-button @click="dialogVisible = false">取 消</el-button>
-                <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+                <el-button @click="resetForm('ruleForm')">取 消</el-button>
+                <el-button type="primary" @click="onSubmit('ruleForm')">确 定</el-button>
             </div>
         </el-dialog>
     </div>
 </template>
 
 <script>
+import { getRegistrationList, postAddVehicle } from "@/api/vehicle"
 export default {
     components: {},
     data() {
         return {
             // 查询条件
             form: {
-                user: ''
+                plateNumber: '',
+                carNumber: '',
+                phone: undefined,
             },
             total: 1,
             queryParams: {
                 pageNum: 1,
                 pageSize: 10
             },
+            title: "添加车辆",
             tableData: [
-                {
-                    id: 1,
-                    plateNumber: '渝A·V1000',
-                    carNumber: 'A10',
-                    ownerName: '周先生',
-                    phone: '13054624562',
-                    type: '小型车',
-                    admissionTime: '2023-0203 12:01:59',
-                    chargeHour: '3',
-                }
+                // {
+                //     id: 1,
+                //     plateNumber: '渝A·V1000',
+                //     carNumber: 'A10',
+                //     ownerName: '周先生',
+                //     phone: '13054624562',
+                //     type: '小型车',
+                //     admissionTime: '2023-0203 12:01:59',
+                //     chargeHour: '3',
+                // }
             ],
-            // 添加用户
+            // 添加车辆 
             ruleForm: {
-                username: '',
-                nickname: '',
-                email: ''
+                plateNumber: '',
+                carNumber: '',
+                ownerName: '',
+                phone: undefined,
+                type: undefined,
+                exittime: ""
             },
             dialogVisible: false,
             rules: {
-                username: [
-                    { required: true, message: '请输入用户名', trigger: 'blur' },
+                plateNumber: [
+                    { required: true, message: '请输入车牌号', trigger: 'blur' },
                 ],
-                nickname: { required: true, message: '请输入昵称', trigger: 'blur' },
-                email: { required: true, message: '请输入邮箱', trigger: 'blur' },
+                carNumber: { required: true, message: '请输入车位号', trigger: 'blur' },
+                ownerName: { required: true, message: '请输入车主姓名', trigger: 'blur' },
+                phone: [
+                    { required: true, message: '请输入车主电话', trigger: 'blur' },
+                    { pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/, message: "请输入正确的手机号码", trigger: "blur" }
+                ],
+                type: { required: true, message: '请选择车辆类型', trigger: ['blur', 'change'] }
             }
         };
     },
+    created() {
+        this.getList();
+    },
     methods: {
         getList() {
-
+            getRegistrationList(this.form).then(({ data }) => {
+                this.tableData = data;
+            })
         },
-        onSubmit() {
-
+        // 确认添加
+        onSubmit(formName) {
+            if (this.title === "添加用户") {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        // postAddVehicle(this.ruleForm).then(({ status, message }) => {
+                        //     if (status === 0) {
+                        //         this.msgSuccess(message);
+                        //         this.dialogVisible = false;
+                        //         this.getList();
+                        //     }
+                        // })
+                    }
+                });
+            } else {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        // postUpdateUserInfo(this.ruleForm).then(({ status, message }) => {
+                        //     if (status === 0) {
+                        //         this.msgSuccess(message);
+                        //         this.dialogVisible = false;
+                        //         this.getList();
+                        //     }
+                        // })
+                    }
+                });
+            }
         },
-        addUser() {
-
+        resetForm(formName) {
+            this.$refs[formName].resetFields();
+            this.dialogVisible = false;
         },
-        cancel() {
-
-        }
+        // 重置
+        cancel(formName) {
+            this.$refs[formName].resetFields();
+            this.getList();
+        },
     }
 }
 
