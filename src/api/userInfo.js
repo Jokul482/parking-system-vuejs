@@ -1,14 +1,13 @@
 import request from '@/utils/request'
 const qs = require('qs');
-const baseUrl = '/my'
+const baseUrl = '/my';
+const headers = { 'Content-Type': 'application/x-www-form-urlencoded' }
 // 用户列表
 export function getUserList(params) {
     return request({
         url: baseUrl + '/getUserList',
         method: 'get',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
+        headers ,
         params
     })
 }
@@ -17,9 +16,7 @@ export function getUserInfo(params) {
     return request({
         url: baseUrl + '/getUserInfo',
         method: 'get',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
+        headers,
         params
     })
 }
@@ -28,9 +25,15 @@ export function postUpdateUserInfo(data) {
     return request({
         url: baseUrl + '/updateUserInfo',
         method: 'post',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
+        headers,
         data: qs.stringify(data)
+    })
+}
+// 删除用户数据
+export function deleteUserInfo(id) {
+    return request({
+        url: baseUrl + `/deleteUser/${id}`,
+        method: 'get',
+        headers,
     })
 }

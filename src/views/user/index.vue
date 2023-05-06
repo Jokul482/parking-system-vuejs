@@ -4,7 +4,8 @@
             <el-form :inline="true" :model="form" ref="searchRef" class="demo-form-inline">
                 <el-form-item label="角色类型：" prop="role_type">
                     <el-select v-model="form.role_type" placeholder="请选择角色类型" style="width: 240px">
-                        <el-option v-for="item in option" :key="item.role_type" :label="item.label" :value="item.role_type"></el-option>
+                        <el-option v-for="item in option" :key="item.role_type" :label="item.label"
+                            :value="item.role_type"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="用户名：" prop="username">
@@ -62,7 +63,8 @@
                 empty-text="暂无数据">
                 <el-form-item label="角色类型：" prop="role_type">
                     <el-select v-model="ruleForm.role_type" placeholder="请选择角色类型" style="width: 240px">
-                        <el-option v-for="item in option" :key="item.role_type" :label="item.label" :value="item.role_type"></el-option>
+                        <el-option v-for="item in option" :key="item.role_type" :label="item.label"
+                            :value="item.role_type"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="用户名：" prop="username">
@@ -91,7 +93,7 @@
 </template>
 
 <script>
-import { getUserList, getUserInfo, postUpdateUserInfo } from "@/api/userInfo";
+import { getUserList, getUserInfo, postUpdateUserInfo, deleteUserInfo } from "@/api/userInfo";
 import { addUser } from "@/api/user";
 import { roleType } from "@/utils/basic-dictionary"
 export default {
@@ -123,11 +125,9 @@ export default {
             dialogVisible: false,
             rules: {
                 role_type: { required: true, message: "请选择角色", trigger: ["change", "blur"] },
-                username: {
-                    required: true,
-                    message: "请输入用户名",
-                    trigger: "blur",
-                },
+                username: [
+                    { required: true, message: "请输入用户名", trigger: "blur" },
+                ],
                 password: [
                     { required: true, message: "请输入密码", trigger: "blur" },
                     { min: 6, max: 12, message: '长度在 6 到 12 个字符', trigger: ["change", "blur"] }
@@ -191,12 +191,25 @@ export default {
         handleUpdate(id) {
             this.title = "编辑用户";
             this.dialogVisible = true;
-            getUserInfo({id}).then(({status, data}) => {
-                if(status === 0) {
+            getUserInfo({ id }).then(({ status, data }) => {
+                if (status === 0) {
                     this.ruleForm = data;
-                    console.log(this.ruleForm);
-                    console.log(this.option);
                 }
+            })
+        },
+        // 删除
+        handleDelete(id) {
+            this.$confirm('此操作将删除该用户, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                deleteUserInfo(id).then(({ status, message }) => {
+                    if (status == 0) {
+                        this.msgSuccess(message);
+                        this.getList();
+                    }
+                })
             })
         },
         // 重置
