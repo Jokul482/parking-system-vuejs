@@ -12,6 +12,12 @@
                         <el-option label="C区" value="2"></el-option>
                     </el-select>
                 </el-form-item>
+                <el-form-item label="车位状态：">
+                    <el-select placeholder="请选择车位状态" style="width: 240px;">
+                        <el-option label="未使用" value="0"></el-option>
+                        <el-option label="正在使用" value="1"></el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="queryParams.pageNum = 1,getList()">搜索</el-button>
                     <el-button @click="cancel">重置</el-button>
