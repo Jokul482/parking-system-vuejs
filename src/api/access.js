@@ -4,7 +4,7 @@ const headers = { 'Content-Type': 'application/x-www-form-urlencoded' }
 // 车辆列表
 export function getRegistrationList(data) {
     return request({
-        url: '/vehicle/getRegistrationList',
+        url: '/my/access/getRegistrationList',
         method: 'get',
         headers,
         data: qs.stringify(data)
@@ -13,7 +13,7 @@ export function getRegistrationList(data) {
 // 添加车辆登记
 export function postAddVehicle(data) {
     return request({
-        url: '/vehicle/AddVehicle',
+        url: '/my/access/AddVehicle',
         method: 'post',
         headers,
         data: qs.stringify(data)

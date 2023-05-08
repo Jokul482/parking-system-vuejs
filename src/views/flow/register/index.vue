@@ -87,7 +87,7 @@
 </template>
 
 <script>
-import { getRegistrationList, postAddVehicle } from "@/api/vehicle"
+import { getRegistrationList, postAddVehicle } from "@/api/access"
 export default {
     components: {},
     data() {

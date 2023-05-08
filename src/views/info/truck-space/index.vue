@@ -1,26 +1,25 @@
 <template>
     <div>
         <el-card class="box-card" header="条件筛选">
-            <el-form :inline="true" :model="form" class="demo-form-inline">
-                <el-form-item label="车位号：">
-                    <el-input v-model="form.user" placeholder="请输入车牌号" style="width: 240px;"></el-input>
+            <el-form :inline="true" :model="form" ref="searchRef" class="demo-form-inline">
+                <el-form-item label="车位号：" prop="carNumber">
+                    <el-input v-model="form.carNumber" placeholder="请输入车牌号" style="width: 240px;"></el-input>
                 </el-form-item>
-                <el-form-item label="区域：">
-                    <el-select placeholder="请选择车位区域" style="width: 240px;">
+                <el-form-item label="区域：" prop="type">
+                    <el-select v-model="form.type" placeholder="请选择车位区域" style="width: 240px;">
                         <el-option label="A区" value="0"></el-option>
                         <el-option label="B区" value="1"></el-option>
                         <el-option label="C区" value="2"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="车位状态：">
-                    <el-select placeholder="请选择车位状态" style="width: 240px;">
-                        <el-option label="未使用" value="0"></el-option>
-                        <el-option label="正在使用" value="1"></el-option>
+                <el-form-item label="车位状态：" prop="status">
+                    <el-select v-model="form.status" placeholder="请选择车位状态" style="width: 240px;">
+                        <el-option v-for="item in vehicleStatus" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="queryParams.pageNum = 1,getList()">搜索</el-button>
-                    <el-button @click="cancel">重置</el-button>
+                    <el-button @click="cancel('searchRef')">重置</el-button>
                 </el-form-item>
             </el-form>
         </el-card>
@@ -57,7 +56,7 @@
                 :limit.sync="queryParams.pageSize" @pagination="getList" />
         </el-card>
 
-        <!-- 添加用户 -->
+        <!-- 添加车位 -->
         <el-dialog title="添加用户" :visible.sync="dialogVisible" width="30%">
             <el-form label-position="left" :model="ruleForm" :rules="rules" ref="ruleForm" label-width="70px"
                 empty-text="暂无数据">
@@ -80,6 +79,7 @@
 </template>
 
 <script>
+import { vehicleType, vehicleStatus } from "@/utils/basic-dictionary"
 export default {
     components: {},
     data() {
@@ -110,6 +110,7 @@ export default {
                 nickname: '',
                 email: ''
             },
+            title: "添加车位",
             dialogVisible: false,
             rules: {
                 username: [
@@ -125,9 +126,68 @@ export default {
 
         },
         onSubmit() {
-
+            if (this.title === "添加车位") {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        // addUser(this.ruleForm).then(({ status, message }) => {
+                        //     if (status === 0) {
+                        //         this.msgSuccess(message);
+                        //         this.dialogVisible = false;
+                        //         this.getList();
+                        //     }
+                        // })
+                    }
+                });
+            } else {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        // postUpdateUserInfo(this.ruleForm).then(({ status, message }) => {
+                        //     if (status === 0) {
+                        //         this.msgSuccess(message);
+                        //         this.dialogVisible = false;
+                        //         this.getList();
+                        //     }
+                        // })
+                    }
+                });
+            }
         },
-        addUser() {
+        resetForm(formName) {
+            this.$refs[formName].resetFields();
+            this.dialogVisible = false;
+        },
+        // 编辑
+        handleUpdate(id) {
+            this.title = "编辑用户";
+            this.dialogVisible = true;
+            // getUserInfo({ id }).then(({ status, data }) => {
+            //     if (status === 0) {
+            //         this.ruleForm = data;
+            //     }
+            // })
+        },
+        // 删除
+        handleDelete(id) {
+            this.$confirm('此操作将删除该用户, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                // deleteUserInfo(id).then(({ status, message }) => {
+                //     if (status == 0) {
+                //         this.msgSuccess(message);
+                //         this.getList();
+                //     }
+                // })
+            })
+        },
+        // 重置
+        cancel(formName) {
+            this.$refs[formName].resetFields();
+            this.getList();
+        },
+        // 导出数据Excel
+        exportExcel() {
 
         }
     }
