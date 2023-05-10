@@ -5,11 +5,9 @@
                 <el-form-item label="车位号：" prop="carNumber">
                     <el-input v-model="form.carNumber" placeholder="请输入车牌号" style="width: 240px;"></el-input>
                 </el-form-item>
-                <el-form-item label="区域：" prop="type">
+                <el-form-item label="车位区域：" prop="type">
                     <el-select v-model="form.type" placeholder="请选择车位区域" style="width: 240px;">
-                        <el-option label="A区" value="0"></el-option>
-                        <el-option label="B区" value="1"></el-option>
-                        <el-option label="C区" value="2"></el-option>
+                        <el-option v-for="item in vehicleArea" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="车位状态：" prop="status">
@@ -27,7 +25,7 @@
             <div slot="header" class="card-center">
                 <span>车位信息列表</span>
                 <div>
-                    <el-button type="primary" @click="dialogVisible = true">添加</el-button>
+                    <el-button type="primary" @click="addVehicle">添加</el-button>
                     <el-button type="primary" @click="exportExcel">一键导出</el-button>
                 </div>
             </div>
@@ -36,13 +34,19 @@
                 </el-table-column>
                 <el-table-column prop="carNumber" label="车位号">
                 </el-table-column>
-                <el-table-column prop="area" label="区域">
+                <el-table-column prop="area" label="车位区域">
+                    <template v-slot="{ row, column }">{{ getArea(row[column.property]) }}</template>
                 </el-table-column>
                 <el-table-column prop="chargeHour" label="每小时收费(￥)">
                 </el-table-column>
-                <el-table-column prop="remarks" label="备注">
-                </el-table-column>
                 <el-table-column prop="type" label="车位类型">
+                    <template v-slot="{ row, column }">{{ getType(row[column.property]) }}</template>
+                </el-table-column>
+                <el-table-column prop="type" label="车位状态">
+                    <template v-slot="{ row, column }">{{ row[column.property] == 1 ? "空闲" : "正在使用" }}</template>
+                </el-table-column>
+                <el-table-column prop="remarks" label="备注">
+                    <template v-slot="{ row, column }">{{ row[column.property] ? row[column.property] : "--" }}</template>
                 </el-table-column>
                 <el-table-column fixed="right" label="操作" width="180" align="center">
                     <template slot-scope="scope">
@@ -57,97 +61,116 @@
         </el-card>
 
         <!-- 添加车位 -->
-        <el-dialog title="添加用户" :visible.sync="dialogVisible" width="30%">
-            <el-form label-position="left" :model="ruleForm" :rules="rules" ref="ruleForm" label-width="70px"
+        <el-dialog title="添加车位" :visible.sync="dialogVisible" width="30%">
+            <el-form label-position="left" :model="ruleForm" :rules="rules" ref="ruleForm" label-width="120px"
                 empty-text="暂无数据">
-                <el-form-item label="用户名：">
-                    <el-input v-model="ruleForm.username" autocomplete="off" style="width: 240px;"></el-input>
+                <el-form-item label="车位号：" prop="carNumber">
+                    <el-input v-model="ruleForm.carNumber" placeholder="请输入车位号" autocomplete="off" style="width: 240px;"></el-input>
                 </el-form-item>
-                <el-form-item label="昵称：">
-                    <el-input v-model="ruleForm.nickname" autocomplete="off" style="width: 240px;"></el-input>
+                <el-form-item label="区域：" prop="area">
+                    <el-select v-model="ruleForm.area" placeholder="请选择车位区域" style="width: 240px;">
+                        <el-option v-for="item in vehicleArea" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    </el-select>
                 </el-form-item>
-                <el-form-item label="邮箱：">
-                    <el-input v-model="ruleForm.email" autocomplete="off" style="width: 240px;"></el-input>
+                <el-form-item label="车位类型：" prop="type">
+                    <el-select v-model="ruleForm.type" placeholder="请选择车位类型" style="width: 240px;">
+                        <el-option v-for="item in vehicleType" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="每小时收费：" prop="chargeHour">
+                    <el-input v-model="ruleForm.chargeHour" placeholder="请输入每小时收费额" autocomplete="off" style="width: 240px;"></el-input>
+                </el-form-item>
+                <el-form-item label="备注：" prop="remarks">
+                    <el-input v-model="ruleForm.remarks" placeholder="请输入备注" autocomplete="off" style="width: 240px;"></el-input>
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
-                <el-button @click="dialogVisible = false">取 消</el-button>
-                <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+                <el-button @click="resetForm('ruleForm')">取 消</el-button>
+                <el-button type="primary" @click="onSubmit('ruleForm')">确 定</el-button>
             </div>
         </el-dialog>
     </div>
 </template>
 
 <script>
-import { vehicleType, vehicleStatus } from "@/utils/basic-dictionary"
+import { vehicleArea, vehicleType, vehicleStatus } from "@/utils/basic-dictionary"
+import { getVehicleList, postAddVehicle, getVehicleInfo, postUpdateVehicleInfo, deleteVehicleInfo } from "@/api/vehicle"
 export default {
     components: {},
     data() {
         return {
             // 查询条件
             form: {
-                user: ''
+                type: "",
+                carNumber: "",
+                status: "",
             },
             total: 1,
             queryParams: {
                 pageNum: 1,
                 pageSize: 10
             },
-            tableData: [
-                {
-                    id: 1,
-                    carNumber: 'A10',
-                    area: 'A区',
-                    type: '小型车车位',
-                    chargeHour: '3',
-                    remarks: '车位险',
-                    status: '1',
-                }
-            ],
+            tableData: [],
+            vehicleArea: vehicleArea,
+            vehicleType: vehicleType,
+            vehicleStatus: vehicleStatus,
             // 添加用户
             ruleForm: {
-                username: '',
-                nickname: '',
-                email: ''
+                carNumber: "",
+                area: "",
+                type: "",
+                chargeHour: "",
+                remarks: "",
             },
             title: "添加车位",
             dialogVisible: false,
             rules: {
-                username: [
-                    { required: true, message: '请输入用户名', trigger: 'blur' },
+                carNumber: [
+                    { required: true, message: '请输入车位号', trigger: 'blur' },
                 ],
-                nickname: { required: true, message: '请输入昵称', trigger: 'blur' },
-                email: { required: true, message: '请输入邮箱', trigger: 'blur' },
+                area: { required: true, message: '请选择车位区域', trigger: ['blur', 'change'] },
+                type: { required: true, message: '请选择车位类型', trigger: 'blur' },
+                chargeHour: { required: true, message: '请输入每小时收费额', trigger: 'blur' },
             }
         };
     },
+    created() {
+        this.getList();
+    },
     methods: {
         getList() {
-
+            getVehicleList(this.form).then(({status, data}) => {
+                this.tableData = data;
+            })
         },
-        onSubmit() {
+        // 添加车位
+        addVehicle(id) {
+            this.dialogVisible = true;
+            this.title = "添加车位";
+        },
+        onSubmit(formName) {
             if (this.title === "添加车位") {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        // addUser(this.ruleForm).then(({ status, message }) => {
-                        //     if (status === 0) {
-                        //         this.msgSuccess(message);
-                        //         this.dialogVisible = false;
-                        //         this.getList();
-                        //     }
-                        // })
+                        postAddVehicle(this.ruleForm).then(({ status, message }) => {
+                            if (status === 0) {
+                                this.msgSuccess(message);
+                                this.dialogVisible = false;
+                                this.getList();
+                            }
+                        })
                     }
                 });
             } else {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        // postUpdateUserInfo(this.ruleForm).then(({ status, message }) => {
-                        //     if (status === 0) {
-                        //         this.msgSuccess(message);
-                        //         this.dialogVisible = false;
-                        //         this.getList();
-                        //     }
-                        // })
+                        postUpdateVehicleInfo(this.ruleForm).then(({ status, message }) => {
+                            if (status === 0) {
+                                this.msgSuccess(message);
+                                this.dialogVisible = false;
+                                this.getList();
+                            }
+                        })
                     }
                 });
             }
@@ -158,27 +181,27 @@ export default {
         },
         // 编辑
         handleUpdate(id) {
-            this.title = "编辑用户";
+            this.title = "编辑车位";
             this.dialogVisible = true;
-            // getUserInfo({ id }).then(({ status, data }) => {
-            //     if (status === 0) {
-            //         this.ruleForm = data;
-            //     }
-            // })
+            getVehicleInfo({ id }).then(({ status, data }) => {
+                if (status === 0) {
+                    this.ruleForm = data;
+                }
+            })
         },
         // 删除
         handleDelete(id) {
-            this.$confirm('此操作将删除该用户, 是否继续?', '提示', {
+            this.$confirm('此操作将删除该车位, 是否继续?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(() => {
-                // deleteUserInfo(id).then(({ status, message }) => {
-                //     if (status == 0) {
-                //         this.msgSuccess(message);
-                //         this.getList();
-                //     }
-                // })
+                deleteVehicleInfo(id).then(({ status, message }) => {
+                    if (status == 0) {
+                        this.msgSuccess(message);
+                        this.getList();
+                    }
+                })
             })
         },
         // 重置
@@ -189,6 +212,32 @@ export default {
         // 导出数据Excel
         exportExcel() {
 
+        },
+        // 车位区域
+        getArea(key) {
+            switch (key) {
+                case "1":
+                    return "A区"
+                case "2":
+                    return "B区"
+                case "3":
+                    return "C区"
+                default:
+                    return "--"
+            }
+        },
+        // 车位类型
+        getType(key) {
+            switch (key) {
+                case 1:
+                    return "小型车车位"
+                case 2:
+                    return "中型车车位"
+                case 3:
+                    return "大型车车位"
+                default:
+                    return "--"
+            }
         }
     }
 }

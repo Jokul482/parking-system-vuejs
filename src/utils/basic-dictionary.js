@@ -9,6 +9,21 @@ export const roleType = [
         label: "普通用户"
     }
 ]
+// 车位区域
+export const vehicleArea = [
+    {
+        value: 1,
+        label: "A区"
+    },
+    {
+        value: 2,
+        label: "B区"
+    },
+    {
+        value: 3,
+        label: "C区"
+    }
+]
 // 车位类型
 export const vehicleType = [
     {
