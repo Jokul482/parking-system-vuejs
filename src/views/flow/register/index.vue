@@ -97,7 +97,7 @@
 </template>
 
 <script>
-import { getRegistrationList, postAddVehicle, getVehicleInfo } from "@/api/access";
+import { getRegistrationList, postAddVehicle, getVehicleInfo, getRegistrationInfo, postRegistrationInfo } from "@/api/access";
 import { carType, getCarType } from "@/utils/basic-dictionary"
 export default {
     components: {},
@@ -138,7 +138,6 @@ export default {
                 phone: undefined,
                 type: undefined,
                 exittime: "",
-
             },
             dialogVisible: false,
             rules: {
@@ -168,14 +167,21 @@ export default {
         addCar() {
             this.title = "添加车辆";
             this.dialogVisible = true;
+            this.getVehicleList()
+        },
+        // 编辑
+        async handleUpdate(id) {
+            this.title = "编辑车辆";
+            this.dialogVisible = true;
+            await this.getVehicleList();
+            const { data } = await getRegistrationInfo({id})
+            this.ruleForm = data;
+        },
+        // 获取车位号
+        getVehicleList() {
             getVehicleInfo().then(({data}) => {
                 this.vehicleList = data;
             })
-        },
-        // 编辑
-        handleUpdate(id) {
-            this.title = "编辑车辆";
-            this.dialogVisible = true;
         },
         // 删除
         handleDelete(id) {
@@ -209,13 +215,13 @@ export default {
             } else {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        // postUpdateUserInfo(this.ruleForm).then(({ status, message }) => {
-                        //     if (status === 0) {
-                        //         this.msgSuccess(message);
-                        //         this.dialogVisible = false;
-                        //         this.getList();
-                        //     }
-                        // })
+                        postRegistrationInfo(this.ruleForm).then(({ status, message }) => {
+                            if (status === 0) {
+                                this.msgSuccess(message);
+                                this.dialogVisible = false;
+                                this.getList();
+                            }
+                        })
                     }
                 });
             }

@@ -30,3 +30,23 @@ export function getVehicleInfo() {
         headers,
     })
 }
+
+// 获取车辆数据
+export function getRegistrationInfo(params) {
+    return request({
+        url: `/my/access/getRegistrationInfo`,
+        method: 'get',
+        headers,
+        params
+    })
+}
+
+// 更新车辆数据
+export function postRegistrationInfo(data) {
+    return request({
+        url: `/my/access/postRegistrationInfo`,
+        method: 'post',
+        headers,
+        data: qs.stringify(data)
+    })
+}
