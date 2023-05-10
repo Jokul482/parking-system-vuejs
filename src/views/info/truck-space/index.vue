@@ -93,7 +93,7 @@
 </template>
 
 <script>
-import { vehicleArea, vehicleType, vehicleStatus } from "@/utils/basic-dictionary"
+import { vehicleArea, vehicleType, vehicleStatus, getArea, getType } from "@/utils/basic-dictionary"
 import { getVehicleList, postAddVehicle, getVehicleInfo, postUpdateVehicleInfo, deleteVehicleInfo } from "@/api/vehicle"
 export default {
     components: {},
@@ -114,6 +114,8 @@ export default {
             vehicleArea: vehicleArea,
             vehicleType: vehicleType,
             vehicleStatus: vehicleStatus,
+            getArea: getArea,
+            getType: getType,
             // 添加用户
             ruleForm: {
                 carNumber: "",
@@ -212,32 +214,6 @@ export default {
         // 导出数据Excel
         exportExcel() {
 
-        },
-        // 车位区域
-        getArea(key) {
-            switch (key) {
-                case "1":
-                    return "A区"
-                case "2":
-                    return "B区"
-                case "3":
-                    return "C区"
-                default:
-                    return "--"
-            }
-        },
-        // 车位类型
-        getType(key) {
-            switch (key) {
-                case 1:
-                    return "小型车车位"
-                case 2:
-                    return "中型车车位"
-                case 3:
-                    return "大型车车位"
-                default:
-                    return "--"
-            }
         }
     }
 }

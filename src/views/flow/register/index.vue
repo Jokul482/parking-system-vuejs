@@ -1,14 +1,14 @@
 <template>
     <div>
         <el-card class="box-card" header="条件筛选">
-            <el-form :inline="true" :model="form" class="demo-form-inline">
-                <el-form-item label="车牌号：">
+            <el-form :inline="true" :model="form" ref="searchRef" class="demo-form-inline">
+                <el-form-item label="车牌号：" prop="plateNumber">
                     <el-input v-model="form.plateNumber" placeholder="请输入车牌号" style="width: 240px;"></el-input>
                 </el-form-item>
-                <el-form-item label="车位号：">
+                <el-form-item label="车位号：" prop="carNumber">
                     <el-input v-model="form.carNumber" placeholder="请输入车位号" style="width: 240px;"></el-input>
                 </el-form-item>
-                <el-form-item label="车主电话：">
+                <el-form-item label="车主电话：" prop="phone">
                     <el-input v-model="form.phone" placeholder="请输入车主电话" style="width: 240px;"></el-input>
                 </el-form-item>
                 <el-form-item>
@@ -21,7 +21,7 @@
             <div slot="header" class="card-center">
                 <span>车辆登记列表</span>
                 <div>
-                    <el-button type="primary" @click="dialogVisible = true">添加</el-button>
+                    <el-button type="primary" @click="addCar">添加</el-button>
                     <el-button type="primary" @click="exportExcel">一键导出</el-button>
                 </div>
             </div>
@@ -37,8 +37,9 @@
                 <el-table-column prop="phone" label="车主电话">
                 </el-table-column>
                 <el-table-column prop="type" label="车辆类型">
+                    <template v-slot="{ row, column }">{{ getCarType(row[column.property]) }}</template>
                 </el-table-column>
-                <el-table-column prop="admissionTime" label="入场时间">
+                <el-table-column prop="exittime" label="入场时间">
                 </el-table-column>
                 <el-table-column prop="chargeHour" label="每小时收费(￥)">
                     <template slot-scope="scope">{{ scope.row.chargeHour }}元</template>
@@ -60,22 +61,31 @@
             <el-form label-position="left" :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px"
                 empty-text="暂无数据">
                 <el-form-item label="车牌号：" prop="plateNumber">
-                    <el-input v-model="ruleForm.plateNumber" autocomplete="off"></el-input>
+                    <el-input v-model="ruleForm.plateNumber" placeholder="请选择车牌号" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="车位号：" prop="carNumber">
-                    <el-input v-model="ruleForm.carNumber" autocomplete="off"></el-input>
+                    <el-select v-model="ruleForm.carNumber" placeholder="请选择车位号" style="width: 100%;">
+                        <el-option v-for="item in vehicleList" :key="item.id" :label="item.carNumber" :value="item.carNumber"></el-option>
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="车主姓名：" prop="ownerName">
-                    <el-input v-model="ruleForm.ownerName" autocomplete="off"></el-input>
+                    <el-input v-model="ruleForm.ownerName" placeholder="请输入车主姓名" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="车主电话：" prop="phone">
-                    <el-input v-model="ruleForm.phone" autocomplete="off"></el-input>
+                    <el-input v-model="ruleForm.phone" placeholder="请输入车主电话" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="车辆类型：" prop="type">
-                    <el-input v-model="ruleForm.type" autocomplete="off"></el-input>
+                    <el-select v-model="ruleForm.type" placeholder="请选择车辆类型" style="width: 100%;">
+                        <el-option v-for="item in carType" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="入场时间：" prop="exittime">
-                    <el-input v-model="ruleForm.exittime" autocomplete="off"></el-input>
+                    <el-date-picker v-model="ruleForm.exittime" type="date" value-format="yyyy-MM-dd" placeholder="选择日期" style="width: 100%;">
+                    </el-date-picker>
+                </el-form-item>
+                <el-form-item label="离场时间：" prop="leavingTime">
+                    <el-date-picker v-model="ruleForm.leavingTime" type="date" value-format="yyyy-MM-dd" placeholder="选择日期" style="width: 100%;">
+                    </el-date-picker>
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
@@ -87,7 +97,8 @@
 </template>
 
 <script>
-import { getRegistrationList, postAddVehicle } from "@/api/access"
+import { getRegistrationList, postAddVehicle, getVehicleInfo } from "@/api/access";
+import { carType, getCarType } from "@/utils/basic-dictionary"
 export default {
     components: {},
     data() {
@@ -98,12 +109,15 @@ export default {
                 carNumber: '',
                 phone: undefined,
             },
+            carType: carType,
+            getCarType: getCarType,
             total: 1,
             queryParams: {
                 pageNum: 1,
                 pageSize: 10
             },
             title: "添加车辆",
+            vehicleList: [],
             tableData: [
                 // {
                 //     id: 1,
@@ -123,7 +137,8 @@ export default {
                 ownerName: '',
                 phone: undefined,
                 type: undefined,
-                exittime: ""
+                exittime: "",
+
             },
             dialogVisible: false,
             rules: {
@@ -136,7 +151,8 @@ export default {
                     { required: true, message: '请输入车主电话', trigger: 'blur' },
                     { pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/, message: "请输入正确的手机号码", trigger: "blur" }
                 ],
-                type: { required: true, message: '请选择车辆类型', trigger: ['blur', 'change'] }
+                type: { required: true, message: '请选择车辆类型', trigger: ['blur', 'change'] },
+                exittime: { required: true, message: '请选择入场时间', trigger: ['blur', 'change'] },
             }
         };
     },
@@ -149,18 +165,45 @@ export default {
                 this.tableData = data;
             })
         },
+        addCar() {
+            this.title = "添加车辆";
+            this.dialogVisible = true;
+            getVehicleInfo().then(({data}) => {
+                this.vehicleList = data;
+            })
+        },
+        // 编辑
+        handleUpdate(id) {
+            this.title = "编辑车辆";
+            this.dialogVisible = true;
+        },
+        // 删除
+        handleDelete(id) {
+            this.$confirm('此操作将删除该车位, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                // deleteVehicleInfo(id).then(({ status, message }) => {
+                //     if (status == 0) {
+                //         this.msgSuccess(message);
+                //         this.getList();
+                //     }
+                // })
+            })
+        },
         // 确认添加
         onSubmit(formName) {
-            if (this.title === "添加用户") {
+            if (this.title === "添加车辆") {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        // postAddVehicle(this.ruleForm).then(({ status, message }) => {
-                        //     if (status === 0) {
-                        //         this.msgSuccess(message);
-                        //         this.dialogVisible = false;
-                        //         this.getList();
-                        //     }
-                        // })
+                        postAddVehicle(this.ruleForm).then(({ status, message }) => {
+                            if (status === 0) {
+                                this.msgSuccess(message);
+                                this.dialogVisible = false;
+                                this.getList();
+                            }
+                        })
                     }
                 });
             } else {
@@ -186,6 +229,9 @@ export default {
             this.$refs[formName].resetFields();
             this.getList();
         },
+        exportExcel() {
+
+        }
     }
 }
 

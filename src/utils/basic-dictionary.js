@@ -50,3 +50,57 @@ export const vehicleStatus = [
         label: "正在使用"
     }
 ]
+// 车辆类型
+export const carType = [
+    {
+        value: 1,
+        label: "小型车"
+    },
+    {
+        value: 2,
+        label: "中型车"
+    },
+    {
+        value: 3,
+        label: "大型车"
+    }
+]
+// 获取车辆类型
+export function getCarType(key) {
+    switch (key) {
+        case 1:
+            return "小型车"
+        case 2:
+            return "中型车"
+        case 3:
+            return "大型车"
+        default:
+            return "--"
+    }
+}
+// 车位区域
+export function getArea(key) {
+    switch (key) {
+        case "1":
+            return "A区"
+        case "2":
+            return "B区"
+        case "3":
+            return "C区"
+        default:
+            return "--"
+    }
+}
+// 车位类型
+export function getType(key) {
+    switch (key) {
+        case 1:
+            return "小型车车位"
+        case 2:
+            return "中型车车位"
+        case 3:
+            return "大型车车位"
+        default:
+            return "--"
+    }
+}
