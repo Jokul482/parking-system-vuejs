@@ -45,7 +45,7 @@ export function parseTime(time, cFormat) {
   const time_str = format.replace(/{([ymdhisa])+}/g, (result, key) => {
     const value = formatObj[key]
     // Note: getDay() returns 0 on Sunday
-    if (key === 'a') { return ['日', '一', '二', '三', '四', '五', '六'][value ] }
+    if (key === 'a') { return ['日', '一', '二', '三', '四', '五', '六'][value] }
     return value.toString().padStart(2, '0')
   })
   return time_str
@@ -114,4 +114,20 @@ export function param2Obj(url) {
     }
   })
   return obj
+}
+// el-date-picker type="datetime" 时间转换
+export function timeTransformation(e) {
+  var date = new Date(e);
+  var y = date.getFullYear(); // 年
+  var m = date.getMonth() + 1; // 月
+  m = m < 10 ? ('0' + m) : m;
+  var d = date.getDate(); // 日
+  d = d < 10 ? ('0' + d) : d;
+  var h = date.getHours(); // 时
+  h = h < 10 ? ('0' + h) : h;
+  var min = date.getMinutes(); // 分
+  min = min < 10 ? ('0' + min) : min;
+  var s = date.getSeconds(); // 秒
+  s = s < 10 ? ('0' + s) : s;
+  return y + '-' + m + '-' + d + 'T' + h + ':' + min + ':' + s;//拼在一起
 }

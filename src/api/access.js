@@ -50,3 +50,12 @@ export function postRegistrationInfo(data) {
         data: qs.stringify(data)
     })
 }
+
+// 删除车辆数据
+export function deleteRegistration(id) {
+    return request({
+        url: `/my/access/deleteRegistration/${id}`,
+        method: 'post',
+        headers
+    })
+}

@@ -65,7 +65,8 @@
                 </el-form-item>
                 <el-form-item label="车位号：" prop="carNumber">
                     <el-select v-model="ruleForm.carNumber" placeholder="请选择车位号" style="width: 100%;">
-                        <el-option v-for="item in vehicleList" :key="item.id" :label="item.carNumber" :value="item.carNumber"></el-option>
+                        <el-option v-for="item in vehicleList" :key="item.id" :label="item.carNumber"
+                            :value="item.carNumber"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="车主姓名：" prop="ownerName">
@@ -76,15 +77,18 @@
                 </el-form-item>
                 <el-form-item label="车辆类型：" prop="type">
                     <el-select v-model="ruleForm.type" placeholder="请选择车辆类型" style="width: 100%;">
-                        <el-option v-for="item in carType" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                        <el-option v-for="item in carType" :key="item.value" :label="item.label"
+                            :value="item.value"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="入场时间：" prop="exittime">
-                    <el-date-picker v-model="ruleForm.exittime" type="date" value-format="yyyy-MM-dd" placeholder="选择日期" style="width: 100%;">
+                    <el-date-picker v-model="ruleForm.exittime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" placeholder="选择日期"
+                        style="width: 100%;">
                     </el-date-picker>
                 </el-form-item>
                 <el-form-item label="离场时间：" prop="leavingTime">
-                    <el-date-picker v-model="ruleForm.leavingTime" type="date" value-format="yyyy-MM-dd" placeholder="选择日期" style="width: 100%;">
+                    <el-date-picker v-model="ruleForm.leavingTime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" placeholder="选择日期"
+                        style="width: 100%;">
                     </el-date-picker>
                 </el-form-item>
             </el-form>
@@ -97,7 +101,7 @@
 </template>
 
 <script>
-import { getRegistrationList, postAddVehicle, getVehicleInfo, getRegistrationInfo, postRegistrationInfo } from "@/api/access";
+import { getRegistrationList, postAddVehicle, getVehicleInfo, getRegistrationInfo, postRegistrationInfo, deleteRegistration } from "@/api/access";
 import { carType, getCarType } from "@/utils/basic-dictionary"
 export default {
     components: {},
@@ -118,26 +122,16 @@ export default {
             },
             title: "添加车辆",
             vehicleList: [],
-            tableData: [
-                // {
-                //     id: 1,
-                //     plateNumber: '渝A·V1000',
-                //     carNumber: 'A10',
-                //     ownerName: '周先生',
-                //     phone: '13054624562',
-                //     type: '小型车',
-                //     admissionTime: '2023-0203 12:01:59',
-                //     chargeHour: '3',
-                // }
-            ],
-            // 添加车辆 
+            tableData: [],
+            // 车辆信息
             ruleForm: {
                 plateNumber: '',
                 carNumber: '',
                 ownerName: '',
                 phone: undefined,
                 type: undefined,
-                exittime: "",
+                exittime: null,
+                leavingTime: null,
             },
             dialogVisible: false,
             rules: {
@@ -174,28 +168,28 @@ export default {
             this.title = "编辑车辆";
             this.dialogVisible = true;
             await this.getVehicleList();
-            const { data } = await getRegistrationInfo({id})
+            const { data } = await getRegistrationInfo({ id })
             this.ruleForm = data;
         },
         // 获取车位号
         getVehicleList() {
-            getVehicleInfo().then(({data}) => {
+            getVehicleInfo().then(({ data }) => {
                 this.vehicleList = data;
             })
         },
         // 删除
         handleDelete(id) {
-            this.$confirm('此操作将删除该车位, 是否继续?', '提示', {
+            this.$confirm('此操作将删除该车辆, 是否继续?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(() => {
-                // deleteVehicleInfo(id).then(({ status, message }) => {
-                //     if (status == 0) {
-                //         this.msgSuccess(message);
-                //         this.getList();
-                //     }
-                // })
+                deleteRegistration(id).then(({ status, message }) => {
+                    if (status == 0) {
+                        this.msgSuccess(message);
+                        this.getList();
+                    }
+                })
             })
         },
         // 确认添加

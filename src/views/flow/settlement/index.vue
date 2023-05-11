@@ -1,26 +1,26 @@
 <template>
     <div>
         <el-card class="box-card" header="条件筛选">
-            <el-form :inline="true" :model="form" label-width="100px" class="demo-form-inline">
-                <el-form-item label="车牌号：">
-                    <el-input v-model="form.user" placeholder="请输入车牌号" style="width: 240px;"></el-input>
+            <el-form :inline="true" :model="form" ref="searchRef" label-width="100px" class="demo-form-inline">
+                <el-form-item label="车牌号：" prop="plateNumber">
+                    <el-input v-model="form.plateNumber" placeholder="请输入车牌号" style="width: 240px;"></el-input>
                 </el-form-item>
-                <el-form-item label="车位号：">
-                    <el-input v-model="form.user" placeholder="请输入车牌号" style="width: 240px;"></el-input>
+                <el-form-item label="车位号：" prop="carNumber">
+                    <el-input v-model="form.carNumber" placeholder="请输入车位号" style="width: 240px;"></el-input>
                 </el-form-item>
-                <el-form-item label="车主电话：">
-                    <el-input v-model="form.user" placeholder="请输入车主电话" style="width: 240px;"></el-input>
+                <el-form-item label="车主电话：" prop="phone">
+                    <el-input v-model="form.phone" placeholder="请输入车主电话" style="width: 240px;"></el-input>
                 </el-form-item>
                 <div>
-                    <el-form-item label="是否支付：">
-                        <el-select placeholder="请选择支付状态" style="width: 240px;">
-                            <el-option label="未支付" value="0"></el-option>
-                            <el-option label="已支付" value="1"></el-option>
+                    <el-form-item label="是否支付：" prop="status">
+                        <el-select v-model="form.status" placeholder="请选择支付状态" style="width: 240px;">
+                            <el-option label="未支付" :value="2"></el-option>
+                            <el-option label="已支付" :value="1"></el-option>
                         </el-select>
                     </el-form-item>
                     <el-form-item>
                         <el-button type="primary" @click="queryParams.pageNum = 1,getList()">搜索</el-button>
-                        <el-button @click="cancel">重置</el-button>
+                        <el-button @click="cancel('searchRef')">重置</el-button>
                     </el-form-item>
                 </div>
             </el-form>
@@ -46,6 +46,7 @@
                 <el-table-column prop="admissionTime" label="入场时间">
                 </el-table-column>
                 <el-table-column prop="leavingTime" label="离场时间">
+                    <template v-slot="{ row, column }">{{ row[column.property] ? row[column.property] : "--" }}</template>
                 </el-table-column>
                 <el-table-column prop="duration" label="停放时长">
                     <template slot-scope="scope">
@@ -59,7 +60,12 @@
                 </el-table-column>
                 <el-table-column prop="status" label="是否支付">
                     <template slot-scope="scope">
-                        {{ scope.row.status == 0 ? '未支付' : '已支付' }}
+                        {{ scope.row.status == 2 ? '未支付' : '已支付' }}
+                    </template>
+                </el-table-column>
+                <el-table-column fixed="right" label="操作" width="180" align="center">
+                    <template slot-scope="scope">
+                        <el-button type="text" @click="handleDeparture(scope.row.id)" :disabled="scope.row.status == 1">离场</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -77,7 +83,10 @@ export default {
         return {
             // 查询条件
             form: {
-                user: ''
+                plateNumber: "", // 车牌号
+                carNumber: "", // 车位号
+                phone: undefined, // 手机号
+                status: undefined, // 支付状态
             },
             total: 1,
             queryParams: {
@@ -105,6 +114,13 @@ export default {
     methods: {
         getList() {
 
+        },
+        // 确认离场
+        handleDeparture(id) {
+
+        },  
+        exportExcel() {
+            
         }
     }
 }
