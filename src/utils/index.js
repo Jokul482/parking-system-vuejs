@@ -129,5 +129,5 @@ export function timeTransformation(e) {
   min = min < 10 ? ('0' + min) : min;
   var s = date.getSeconds(); // 秒
   s = s < 10 ? ('0' + s) : s;
-  return y + '-' + m + '-' + d + 'T' + h + ':' + min + ':' + s;//拼在一起
+  return y + '-' + m + '-' + d + ' ' + h + ':' + min + ':' + s;//拼在一起
 }

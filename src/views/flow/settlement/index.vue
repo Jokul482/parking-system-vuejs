@@ -19,7 +19,7 @@
                         </el-select>
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="primary" @click="queryParams.pageNum = 1,getList()">搜索</el-button>
+                        <el-button type="primary" @click="queryParams.pageNum = 1, getList()">搜索</el-button>
                         <el-button @click="cancel('searchRef')">重置</el-button>
                     </el-form-item>
                 </div>
@@ -43,29 +43,24 @@
                 </el-table-column>
                 <el-table-column prop="chargeHour" label="每小时收费(￥)">
                 </el-table-column>
-                <el-table-column prop="admissionTime" label="入场时间">
+                <el-table-column prop="exittime" label="入场时间">
                 </el-table-column>
                 <el-table-column prop="leavingTime" label="离场时间">
                     <template v-slot="{ row, column }">{{ row[column.property] ? row[column.property] : "--" }}</template>
                 </el-table-column>
                 <el-table-column prop="duration" label="停放时长">
-                    <template slot-scope="scope">
-                        {{ scope.row.duration }}小时
-                    </template>
+                    <template v-slot="{ row, column }">{{ row[column.property] ? row[column.property] : "--" }}</template>
                 </el-table-column>
                 <el-table-column prop="amount" label="应收费金额">
-                    <template slot-scope="scope">
-                        {{ scope.row.amount }}元
-                    </template>
+                    <template v-slot="{ row, column }">{{ row[column.property] ? row[column.property] : "--" }}</template>
                 </el-table-column>
                 <el-table-column prop="status" label="是否支付">
-                    <template slot-scope="scope">
-                        {{ scope.row.status == 2 ? '未支付' : '已支付' }}
-                    </template>
+                    <template v-slot="{ row, column }">{{ row[column.property] == 1 ? '已支付' : "未支付" }}</template>
                 </el-table-column>
                 <el-table-column fixed="right" label="操作" width="180" align="center">
                     <template slot-scope="scope">
-                        <el-button type="text" @click="handleDeparture(scope.row.id)" :disabled="scope.row.status == 1">离场</el-button>
+                        <el-button type="text" @click="handleDeparture(scope.row)"
+                            :disabled="scope.row.status == 1">结算</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -73,18 +68,37 @@
             <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum"
                 :limit.sync="queryParams.pageSize" @pagination="getList" />
         </el-card>
+        <!-- 结算弹窗 -->
+        <el-dialog title="结算离场" :visible.sync="dialogVisible" width="30%">
+            <el-descriptions>
+                <el-descriptions-item label="当前时间">{{ leavingTime }}</el-descriptions-item>
+            </el-descriptions>
+            <el-descriptions>
+                <el-descriptions-item label="车辆停放时长">{{ parkDuration }}</el-descriptions-item>
+            </el-descriptions>
+            <el-descriptions>
+                <el-descriptions-item label="结算费用">{{ amount }}</el-descriptions-item>
+            </el-descriptions>
+            <span style="color: #ff0000;font-size: 12px;">注：停放时长不满一小时按一小时计算</span>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="handleConfirm">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
 <script>
+import { getSettlementList, postSettlementDeparture } from "@/api/access"
+import { timeTransformation } from "@/utils/index"
 export default {
     components: {},
     data() {
         return {
             // 查询条件
             form: {
-                plateNumber: "", // 车牌号
-                carNumber: "", // 车位号
+                plateNumber: undefined, // 车牌号
+                carNumber: undefined, // 车位号
                 phone: undefined, // 手机号
                 status: undefined, // 支付状态
             },
@@ -93,34 +107,65 @@ export default {
                 pageNum: 1,
                 pageSize: 10
             },
-            tableData: [
-                {
-                    id: 1,
-                    plateNumber: '渝A·V1000',
-                    carNumber: 'A10',
-                    ownerName: '周先生',
-                    phone: '13054624562',
-                    type: '小型车',
-                    admissionTime: '2023-0203 12:01:59',
-                    chargeHour: '3',
-                    leavingTime: '2023-0203 14:02:00',
-                    duration: '2',
-                    amount: '6',
-                    status: '1',
-                }
-            ],
+            tableData: [],
+            dialogVisible: false,
+            parkDuration: undefined,
+            leavingTime: undefined,
+            parkFee: undefined,
+            amount: undefined,
+            id: undefined
         };
+    },
+    created() {
+        this.getList();
     },
     methods: {
         getList() {
-
+            getSettlementList(this.form).then(({ data }) => {
+                this.tableData = data;
+            })
         },
         // 确认离场
-        handleDeparture(id) {
-
-        },  
+        handleDeparture(row) {
+            this.dialogVisible = true;
+            this.id = row.id;
+            this.parkFee = row.chargeHour; // 当前车位停车费用
+            let exittime = new Date(row.exittime).getTime() / 1000; // 将入场时间 转换成时间戳
+            let newTime = new Date().getTime(); // 固定当前时间
+            this.leavingTime = timeTransformation(newTime); // 获取当前时间并格式化
+            let leavingTime = newTime / 1000;    // 将离场时间 转换成时间戳
+            let differTime = leavingTime - exittime; // 相差时间 
+            let getMin = parseFloat(differTime / 60); // 获得 多少分钟
+            let parkDuration = getMin / 60; // 获取小时
+            if(!Number.isInteger(parkDuration)) {
+                this.parkDuration = parkDuration.toFixed(0);
+                this.parkDuration = Number(this.parkDuration) + 1;
+                return this.amount = this.parkFee * this.parkDuration;
+            }
+        },
+        // 确认结算
+        handleConfirm() {
+            let body = {
+                leavingTime: this.leavingTime,
+                duration: this.parkDuration,
+                amount: this.amount,
+                id: this.id
+            }
+            postSettlementDeparture(body).then(({status, message}) => {
+                if(status === 0) {
+                    this.dialogVisible = false;
+                    this.msgSuccess(message);
+                    this.getList();
+                }
+            })
+        },
+        // 重置
+        cancel(formName) {
+            this.$refs[formName].resetFields();
+            this.getList();
+        },
         exportExcel() {
-            
+
         }
     }
 }

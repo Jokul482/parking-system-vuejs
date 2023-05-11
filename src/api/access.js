@@ -59,3 +59,23 @@ export function deleteRegistration(id) {
         headers
     })
 }
+
+// 车辆结算数据列表
+export function getSettlementList(params) {
+    return request({
+        url: `/my/access/getSettlementList`,
+        method: 'get',
+        headers,
+        params
+    })
+}
+
+// 车辆结算
+export function postSettlementDeparture(data) {
+    return request({
+        url: `/my/access/postSettlementDeparture`,
+        method: 'post',
+        headers,
+        data: qs.stringify(data)
+    })
+}

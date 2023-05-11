@@ -86,11 +86,6 @@
                         style="width: 100%;">
                     </el-date-picker>
                 </el-form-item>
-                <el-form-item label="离场时间：" prop="leavingTime">
-                    <el-date-picker v-model="ruleForm.leavingTime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" placeholder="选择日期"
-                        style="width: 100%;">
-                    </el-date-picker>
-                </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="resetForm('ruleForm')">取 消</el-button>
@@ -130,8 +125,7 @@ export default {
                 ownerName: '',
                 phone: undefined,
                 type: undefined,
-                exittime: null,
-                leavingTime: null,
+                exittime: null
             },
             dialogVisible: false,
             rules: {
