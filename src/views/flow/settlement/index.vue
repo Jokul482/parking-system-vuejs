@@ -49,10 +49,10 @@
                     <template v-slot="{ row, column }">{{ row[column.property] ? row[column.property] : "--" }}</template>
                 </el-table-column>
                 <el-table-column prop="duration" label="停放时长">
-                    <template v-slot="{ row, column }">{{ row[column.property] ? row[column.property] : "--" }}</template>
+                    <template v-slot="{ row, column }">{{ row[column.property] ? `${row[column.property]}小时` : "--" }}</template>
                 </el-table-column>
                 <el-table-column prop="amount" label="应收费金额">
-                    <template v-slot="{ row, column }">{{ row[column.property] ? row[column.property] : "--" }}</template>
+                    <template v-slot="{ row, column }">{{ row[column.property] ? `${row[column.property]}元` : "--" }}</template>
                 </el-table-column>
                 <el-table-column prop="status" label="是否支付">
                     <template v-slot="{ row, column }">{{ row[column.property] == 1 ? '已支付' : "未支付" }}</template>
