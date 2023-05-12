@@ -113,7 +113,8 @@ export default {
             leavingTime: undefined,
             parkFee: undefined,
             amount: undefined,
-            id: undefined
+            id: undefined,
+            carNumber: undefined,
         };
     },
     created() {
@@ -129,6 +130,7 @@ export default {
         handleDeparture(row) {
             this.dialogVisible = true;
             this.id = row.id;
+            this.carNumber = row.carNumber;
             this.parkFee = row.chargeHour; // 当前车位停车费用
             let exittime = new Date(row.exittime).getTime() / 1000; // 将入场时间 转换成时间戳
             let newTime = new Date().getTime(); // 固定当前时间
@@ -149,7 +151,8 @@ export default {
                 leavingTime: this.leavingTime,
                 duration: this.parkDuration,
                 amount: this.amount,
-                id: this.id
+                id: this.id,
+                carNumber: this.carNumber,
             }
             postSettlementDeparture(body).then(({status, message}) => {
                 if(status === 0) {

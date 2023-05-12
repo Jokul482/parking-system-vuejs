@@ -5,8 +5,8 @@
                 <el-form-item label="车位号：" prop="carNumber">
                     <el-input v-model="form.carNumber" placeholder="请输入车牌号" style="width: 240px;"></el-input>
                 </el-form-item>
-                <el-form-item label="车位区域：" prop="type">
-                    <el-select v-model="form.type" placeholder="请选择车位区域" style="width: 240px;">
+                <el-form-item label="车位区域：" prop="area">
+                    <el-select v-model="form.area" placeholder="请选择车位区域" style="width: 240px;">
                         <el-option v-for="item in vehicleArea" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
                 </el-form-item>
@@ -42,7 +42,7 @@
                 <el-table-column prop="type" label="车位类型">
                     <template v-slot="{ row, column }">{{ getType(row[column.property]) }}</template>
                 </el-table-column>
-                <el-table-column prop="type" label="车位状态">
+                <el-table-column prop="status" label="车位状态">
                     <template v-slot="{ row, column }">{{ row[column.property] == 1 ? "空闲" : "正在使用" }}</template>
                 </el-table-column>
                 <el-table-column prop="remarks" label="备注">
@@ -61,16 +61,16 @@
         </el-card>
 
         <!-- 添加车位 -->
-        <el-dialog title="添加车位" :visible.sync="dialogVisible" width="30%">
+        <el-dialog title="添加车位" :visible.sync="dialogVisible" width="30%" @close="resetForm('ruleForm')">
             <el-form label-position="left" :model="ruleForm" :rules="rules" ref="ruleForm" label-width="120px"
                 empty-text="暂无数据">
-                <el-form-item label="车位号：" prop="carNumber">
-                    <el-input v-model="ruleForm.carNumber" placeholder="请输入车位号" autocomplete="off" style="width: 240px;"></el-input>
-                </el-form-item>
                 <el-form-item label="区域：" prop="area">
                     <el-select v-model="ruleForm.area" placeholder="请选择车位区域" style="width: 240px;">
                         <el-option v-for="item in vehicleArea" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
+                </el-form-item>
+                <el-form-item label="车位号：" prop="carNumber">
+                    <el-input v-model="ruleForm.carNumber" :disabled="!ruleForm.area" placeholder="请输入车位号" autocomplete="off" style="width: 240px;"></el-input>
                 </el-form-item>
                 <el-form-item label="车位类型：" prop="type">
                     <el-select v-model="ruleForm.type" placeholder="请选择车位类型" style="width: 240px;">
@@ -101,7 +101,7 @@ export default {
         return {
             // 查询条件
             form: {
-                type: "",
+                area: "",
                 carNumber: "",
                 status: "",
             },
@@ -123,6 +123,7 @@ export default {
                 type: "",
                 chargeHour: "",
                 remarks: "",
+                status: 1
             },
             title: "添加车位",
             dialogVisible: false,

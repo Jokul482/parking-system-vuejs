@@ -57,7 +57,7 @@
         </el-card>
 
         <!-- 添加车辆 -->
-        <el-dialog :title="title" :visible.sync="dialogVisible" width="40%">
+        <el-dialog :title="title" :visible.sync="dialogVisible" width="40%" @close="resetForm('ruleForm')">
             <el-form label-position="left" :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px"
                 empty-text="暂无数据">
                 <el-form-item label="车牌号：" prop="plateNumber">

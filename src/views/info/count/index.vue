@@ -27,39 +27,38 @@
                 <span>车位统计列表</span>
                 <el-button type="primary" @click="exportExcel">一键导出</el-button>
             </div>
-            <el-form :inline="true" :model="form" class="demo-form-inline">
-                <el-form-item label="区域：">
-                    <el-select placeholder="请选择车位区域" style="width: 240px;">
-                        <el-option label="A区" value="0"></el-option>
-                        <el-option label="B区" value="1"></el-option>
-                        <el-option label="C区" value="2"></el-option>
+            <el-form :inline="true" :model="form" ref="searchRef" class="demo-form-inline">
+                <el-form-item label="区域：" prop="area">
+                    <el-select v-model="form.area" placeholder="请选择车位区域" style="width: 240px;">
+                        <el-option v-for="item in vehicleArea" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="车位号：">
-                    <el-input v-model="form.user" placeholder="请输入车牌号" style="width: 240px;"></el-input>
+                <el-form-item label="车位号：" prop="carNumber">
+                    <el-input v-model="form.carNumber" placeholder="请输入车牌号" style="width: 240px;"></el-input>
                 </el-form-item>
-                <el-form-item label="车位状态：">
-                    <el-select placeholder="请选择车位状态" style="width: 240px;">
-                        <el-option label="未使用" value="0"></el-option>
-                        <el-option label="正在使用" value="1"></el-option>
+                <el-form-item label="车位状态：" prop="status">
+                    <el-select v-model="form.status" placeholder="请选择车位状态" style="width: 240px;">
+                        <el-option v-for="item in vehicleStatus" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="queryParams.pageNum = 1,getList()">搜索</el-button>
-                    <el-button @click="cancel">重置</el-button>
+                    <el-button @click="cancel('searchRef')">重置</el-button>
                 </el-form-item>
             </el-form>
             <el-table :data="tableData" border style="width: 100%">
                 <el-table-column type="index" label="序号" width="50">
                 </el-table-column>
                 <el-table-column prop="area" label="区域">
+                    <template v-slot="{ row, column }">{{ getArea(row[column.property]) }}</template>
                 </el-table-column>
                 <el-table-column prop="carNumber" label="车位号">
                 </el-table-column>
                 <el-table-column prop="status" label="车位状态">
-                    <template slot-scope="scope">{{ scope.row.status == 0 ? '空闲' : '正在使用' }}</template>
+                    <template v-slot="{ row, column }">{{ row[column.property] == 1 ? "空闲" : "正在使用" }}</template>
                 </el-table-column>
                 <el-table-column prop="type" label="车位类型">
+                    <template v-slot="{ row, column }">{{ getType(row[column.property]) }}</template>
                 </el-table-column>
                 <el-table-column prop="chargeHour" label="每小时收费(￥)">
                 </el-table-column>
@@ -72,6 +71,8 @@
 </template>
 
 <script>
+import { getVehicleList } from "@/api/vehicle";
+import { vehicleArea, getArea, getType, vehicleStatus } from "@/utils/basic-dictionary"
 export default {
     components: {},
     data() {
@@ -86,16 +87,11 @@ export default {
                 pageNum: 1,
                 pageSize: 10
             },
-            tableData: [
-                {
-                    id: 1,
-                    carNumber: 'A10',
-                    area: 'A区',
-                    type: '小型车车位',
-                    chargeHour: '3',
-                    status: '1',
-                }
-            ],
+            vehicleArea: vehicleArea,
+            vehicleStatus: vehicleStatus,
+            getArea: getArea,
+            getType: getType,
+            tableData: [],
             // 添加用户
             ruleForm: {
                 username: '',
@@ -112,8 +108,21 @@ export default {
             }
         };
     },
+    created() {
+        this.getList();
+    },
     methods: {
         getList() {
+            getVehicleList(this.form).then(({data}) => {
+                this.tableData = data;
+            })
+        },
+        // 重置
+        cancel(formName) {
+            this.$refs[formName].resetFields();
+            this.getList();
+        },
+        exportExcel() {
 
         }
     }

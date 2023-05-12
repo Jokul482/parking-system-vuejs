@@ -42,11 +42,21 @@ export function postUpdateVehicleInfo(data) {
     })
 }
 
-// 更新车位数据
+// 删除车位数据
 export function deleteVehicleInfo(id) {
     return request({
         url: `/my/vehicle/deleteVehicleInfo/${id}`,
         method: 'get',
         headers,
+    })
+}
+
+// 获取车位统计数据
+export function getStatisticsList(params) {
+    return request({
+        url: `/my/vehicle/getStatisticsList`,
+        method: 'get',
+        headers,
+        params
     })
 }
