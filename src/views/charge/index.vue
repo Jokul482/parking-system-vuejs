@@ -46,7 +46,7 @@
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="queryParams.pageNum = 1, getList()">搜索</el-button>
-                    <el-button @click="cancel">重置</el-button>
+                    <el-button @click="cancel('searchRef')">重置</el-button>
                 </el-form-item>
             </el-form>
             <el-table :data="tableData" border style="width: 100%">
@@ -66,8 +66,8 @@
                 </el-table-column>
             </el-table>
             <!-- 分页 -->
-            <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum"
-                :limit.sync="queryParams.pageSize" @pagination="getList" />
+            <!-- <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum"
+                :limit.sync="queryParams.pageSize" @pagination="getList" /> -->
         </el-card>
     </div>
 </template>
@@ -106,6 +106,14 @@ export default {
     methods: {
         handleClick(tab, event) {
             console.log(tab, event);
+        },
+        // 重置
+        cancel(formName) {
+            this.$refs[formName].resetFields();
+            this.getList();
+        },
+        exportExcel() {
+
         }
     }
 }
