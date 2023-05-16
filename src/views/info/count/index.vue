@@ -4,19 +4,19 @@
             <el-row type="flex" class="ht-row">
                 <el-col>
                     <div class="content">
-                        <div class="num" style="color:#fa5555;">112</div>
+                        <div class="num" style="color:#fa5555;">{{ count.total }}</div>
                     </div>
                     <div class="label">总车位</div>
                 </el-col>
                 <el-col>
                     <div class="content">
-                        <div class="num" style="color:#999;">111</div>
+                        <div class="num" style="color:#999;">{{ count.idle }}</div>
                     </div>
                     <div class="label">当前空闲车位</div>
                 </el-col>
                 <el-col>
                     <div class="content">
-                        <div class="num" style="color:#21d59b;">1</div>
+                        <div class="num" style="color:#21d59b;">{{ count.inuse }}</div>
                     </div>
                     <div class="label">正在使用车位</div>
                 </el-col>
@@ -71,7 +71,7 @@
 </template>
 
 <script>
-import { getVehicleList } from "@/api/vehicle";
+import { getVehicleList, getStatisticsData } from "@/api/vehicle";
 import { vehicleArea, getArea, getType, vehicleStatus } from "@/utils/basic-dictionary"
 export default {
     components: {},
@@ -99,6 +99,7 @@ export default {
                 email: ''
             },
             dialogVisible: false,
+            count: {},
             rules: {
                 username: [
                     { required: true, message: '请输入用户名', trigger: 'blur' },
@@ -110,11 +111,17 @@ export default {
     },
     created() {
         this.getList();
+        this.getData();
     },
     methods: {
         getList() {
             getVehicleList(this.form).then(({data}) => {
                 this.tableData = data;
+            })
+        },
+        getData() {
+            getStatisticsData().then(({data}) => {
+                this.count = data;
             })
         },
         // 重置

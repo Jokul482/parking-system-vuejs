@@ -11,10 +11,18 @@
                 <el-form-item label="车主电话：" prop="phone">
                     <el-input v-model="form.phone" placeholder="请输入车主电话" style="width: 240px;"></el-input>
                 </el-form-item>
-                <el-form-item>
-                    <el-button type="primary" @click="queryParams.pageNum = 1, getList()">搜索</el-button>
-                    <el-button @click="cancel('searchRef')">重置</el-button>
-                </el-form-item>
+                <div>
+                    <el-form-item label="是否离场：" prop="status">
+                        <el-select v-model="form.status" placeholder="请选择是否离场" style="width: 240px;">
+                            <el-option label="是" :value="1"></el-option>
+                            <el-option label="否" :value="2"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="queryParams.pageNum = 1, getList()">搜索</el-button>
+                        <el-button @click="cancel('searchRef')">重置</el-button>
+                    </el-form-item>
+                </div>
             </el-form>
         </el-card>
         <el-card class="box-card mt-24">
@@ -43,6 +51,9 @@
                 </el-table-column>
                 <el-table-column prop="chargeHour" label="每小时收费(￥)">
                     <template slot-scope="scope">{{ scope.row.chargeHour }}元</template>
+                </el-table-column>
+                <el-table-column prop="status" label="是否离场">
+                    <template slot-scope="scope">{{ scope.row.status == 1? '是' : '否' }}</template>
                 </el-table-column>
                 <el-table-column fixed="right" label="操作" width="180" align="center">
                     <template slot-scope="scope">

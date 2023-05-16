@@ -60,3 +60,12 @@ export function getStatisticsList(params) {
         params
     })
 }
+
+// 车位统计数据
+export function getStatisticsData() {
+    return request({
+        url: `/my/vehicle/getStatisticsData`,
+        method: 'get',
+        headers
+    })
+}
