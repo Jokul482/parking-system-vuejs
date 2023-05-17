@@ -80,3 +80,13 @@ export function postSettlementDeparture(data) {
         data: qs.stringify(data)
     })
 }
+
+// 收费统计
+export function getAccountCountList(params) {
+    return request({
+        url: `/my/access/getAccountCountList`,
+        method: 'get',
+        headers,
+        params
+    })
+}

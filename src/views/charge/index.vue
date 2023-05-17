@@ -33,16 +33,16 @@
                 <span>收费统计列表</span>
                 <el-button type="primary" @click="exportExcel">一键导出</el-button>
             </div>
-            <el-form :inline="true" :model="form" class="demo-form-inline">
-                <el-form-item label="区域：">
-                    <el-select v-model="value" placeholder="请选择区域">
+            <el-form :inline="true" :model="form" ref="searchRef" class="demo-form-inline">
+                <el-form-item label="区域：" prop="area">
+                    <el-select v-model="form.area" placeholder="请选择区域">
                         <el-option label="A区" value="1"></el-option>
                         <el-option label="B区" value="2"></el-option>
                         <el-option label="C区" value="3"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="车位号：">
-                    <el-input v-model="form.user" placeholder="请输入车牌号" style="width: 240px;"></el-input>
+                <el-form-item label="车位号：" prop="carNumber">
+                    <el-input v-model="form.carNumber" placeholder="请输入车牌号" style="width: 240px;"></el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="queryParams.pageNum = 1, getList()">搜索</el-button>
@@ -53,16 +53,16 @@
                 <el-table-column type="index" label="序号" width="50">
                 </el-table-column>
                 <el-table-column prop="area" label="区域">
+                    <template v-slot="{ row, column }">{{ getArea(row[column.property]) }}</template>
                 </el-table-column>
                 <el-table-column prop="carNumber" label="车位号">
                 </el-table-column>
                 <el-table-column prop="type" label="车位类型">
+                    <template v-slot="{ row, column }">{{ getType(row[column.property]) }}</template>
                 </el-table-column>
-                <el-table-column prop="parkQuantity" label="当日停车量">
+                <el-table-column prop="stopNum" label="今日停车量">
                 </el-table-column>
-                <el-table-column prop="todayCharge" label="当日收费(￥)">
-                </el-table-column>
-                <el-table-column prop="createTime" label="创建时间">
+                <el-table-column prop="amount" label="今日收费(￥)">
                 </el-table-column>
             </el-table>
             <!-- 分页 -->
@@ -73,16 +73,20 @@
 </template>
 
 <script>
+import { getAccountCountList } from "@/api/access"
+import { getType, getArea } from "@/utils/basic-dictionary"
 export default {
     components: {},
     data() {
         return {
             // 查询条件
             form: {
-                user: ''
+                area: "",
+                carNumber: ""
             },
             total: 1,
-            value: '',
+            getType: getType,
+            getArea: getArea,
             queryParams: {
                 pageNum: 1,
                 pageSize: 10
@@ -103,7 +107,15 @@ export default {
             loading: false
         };
     },
+    created() {
+        this.getList();
+    },
     methods: {
+        getList() {
+            getAccountCountList(this.form).then(({data}) => {
+                this.tableData = data;
+            })
+        },
         handleClick(tab, event) {
             console.log(tab, event);
         },

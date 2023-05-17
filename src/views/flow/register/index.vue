@@ -58,7 +58,7 @@
                 <el-table-column fixed="right" label="操作" width="180" align="center">
                     <template slot-scope="scope">
                         <el-button type="text" @click="handleUpdate(scope.row.id)" v-if="scope.row.status !== 1">编辑</el-button>
-                        <el-button type="text" @click="handleDelete(scope.row.id)">删除</el-button>
+                        <el-button type="text" @click="handleDelete(scope.row.id)" v-if="scope.row.status !== 2">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -91,12 +91,12 @@
                 <el-form-item label="车主电话：" prop="phone">
                     <el-input v-model="ruleForm.phone" placeholder="请输入车主电话" autocomplete="off"></el-input>
                 </el-form-item>
-                <el-form-item label="车辆类型：" prop="type">
+                <!-- <el-form-item label="车辆类型：" prop="type">
                     <el-select v-model="ruleForm.type" placeholder="请选择车辆类型" style="width: 100%;">
                         <el-option v-for="item in carType" :key="item.value" :label="item.label"
                             :value="item.value"></el-option>
                     </el-select>
-                </el-form-item>
+                </el-form-item> -->
                 <el-form-item label="入场时间：" prop="exittime">
                     <el-date-picker v-model="ruleForm.exittime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" placeholder="选择日期"
                         style="width: 100%;">
@@ -125,7 +125,7 @@ export default {
                 carNumber: '',
                 phone: undefined,
             },
-            carType: carType,
+            // carType: carType,
             getCarType: getCarType,
             vehicleArea: vehicleArea,
             total: 1,
@@ -157,7 +157,7 @@ export default {
                     { required: true, message: '请输入车主电话', trigger: 'blur' },
                     { pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/, message: "请输入正确的手机号码", trigger: "blur" }
                 ],
-                type: { required: true, message: '请选择车辆类型', trigger: ['blur', 'change'] },
+                // type: { required: true, message: '请选择车辆类型', trigger: ['blur', 'change'] },
                 exittime: { required: true, message: '请选择入场时间', trigger: ['blur', 'change'] },
             }
         };
