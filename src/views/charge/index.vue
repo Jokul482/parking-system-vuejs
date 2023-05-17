@@ -73,7 +73,7 @@
 </template>
 
 <script>
-import { getAccountCountList } from "@/api/access"
+import { getChargeList } from "@/api/charge"
 import { getType, getArea } from "@/utils/basic-dictionary"
 export default {
     components: {},
@@ -112,7 +112,7 @@ export default {
     },
     methods: {
         getList() {
-            getAccountCountList(this.form).then(({data}) => {
+            getChargeList(this.form).then(({data}) => {
                 this.tableData = data;
             })
         },
