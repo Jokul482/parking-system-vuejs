@@ -23,11 +23,12 @@ export function postAddVehicle(data) {
 }
 
 // 获取车位信息
-export function getVehicleInfo() {
+export function getVehicleInfo(params) {
     return request({
         url: '/my/access/getVehicleInfo',
         method: 'get',
         headers,
+        params
     })
 }
 

@@ -57,7 +57,7 @@
                 </el-table-column>
                 <el-table-column fixed="right" label="操作" width="180" align="center">
                     <template slot-scope="scope">
-                        <el-button type="text" @click="handleUpdate(scope.row.id)">编辑</el-button>
+                        <el-button type="text" @click="handleUpdate(scope.row.id)" v-if="scope.row.status !== 1">编辑</el-button>
                         <el-button type="text" @click="handleDelete(scope.row.id)">删除</el-button>
                     </template>
                 </el-table-column>
@@ -74,10 +74,15 @@
                 <el-form-item label="车牌号：" prop="plateNumber">
                     <el-input v-model="ruleForm.plateNumber" placeholder="请选择车牌号" autocomplete="off"></el-input>
                 </el-form-item>
+                <el-form-item label="区域：" prop="area">
+                    <el-select v-model="ruleForm.area" placeholder="请选择车位区域" @change="handleVehicleList" style="width: 100%;">
+                        <el-option v-for="item in vehicleArea" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="车位号：" prop="carNumber">
-                    <el-select v-model="ruleForm.carNumber" placeholder="请选择车位号" style="width: 100%;">
+                    <el-select v-model="ruleForm.carNumber" :disabled="!ruleForm.area" placeholder="请选择车位号" style="width: 100%;">
                         <el-option v-for="item in vehicleList" :key="item.id" :label="item.carNumber"
-                            :value="item.carNumber"></el-option>
+                            :value="item.carNumber" :disabled="item.disabled"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="车主姓名：" prop="ownerName">
@@ -107,6 +112,7 @@
 </template>
 
 <script>
+import { vehicleArea } from "@/utils/basic-dictionary"
 import { getRegistrationList, postAddVehicle, getVehicleInfo, getRegistrationInfo, postRegistrationInfo, deleteRegistration } from "@/api/access";
 import { carType, getCarType } from "@/utils/basic-dictionary"
 export default {
@@ -121,6 +127,7 @@ export default {
             },
             carType: carType,
             getCarType: getCarType,
+            vehicleArea: vehicleArea,
             total: 1,
             queryParams: {
                 pageNum: 1,
@@ -143,6 +150,7 @@ export default {
                 plateNumber: [
                     { required: true, message: '请输入车牌号', trigger: 'blur' },
                 ],
+                area: { required: true, message: '请选择车位区域', trigger: ['blur', 'change'] },
                 carNumber: { required: true, message: '请输入车位号', trigger: 'blur' },
                 ownerName: { required: true, message: '请输入车主姓名', trigger: 'blur' },
                 phone: [
@@ -166,19 +174,18 @@ export default {
         addCar() {
             this.title = "添加车辆";
             this.dialogVisible = true;
-            this.getVehicleList()
         },
         // 编辑
         async handleUpdate(id) {
             this.title = "编辑车辆";
             this.dialogVisible = true;
-            await this.getVehicleList();
             const { data } = await getRegistrationInfo({ id })
             this.ruleForm = data;
         },
         // 获取车位号
-        getVehicleList() {
-            getVehicleInfo().then(({ data }) => {
+        handleVehicleList(e) {
+            this.ruleForm.carNumber = "";
+            getVehicleInfo({id: e}).then(({ data }) => {
                 this.vehicleList = data;
             })
         },
