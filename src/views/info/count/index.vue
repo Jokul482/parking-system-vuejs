@@ -4,19 +4,19 @@
             <el-row type="flex" class="ht-row">
                 <el-col>
                     <div class="content">
-                        <div class="num" style="color:#fa5555;">{{ count.total }}</div>
+                        <div class="num" style="color:#fa5555;">{{ count.total || 0 }}</div>
                     </div>
                     <div class="label">总车位</div>
                 </el-col>
                 <el-col>
                     <div class="content">
-                        <div class="num" style="color:#999;">{{ count.idle }}</div>
+                        <div class="num" style="color:#999;">{{ count.idle || 0 }}</div>
                     </div>
                     <div class="label">当前空闲车位</div>
                 </el-col>
                 <el-col>
                     <div class="content">
-                        <div class="num" style="color:#21d59b;">{{ count.inuse }}</div>
+                        <div class="num" style="color:#21d59b;">{{ count.inuse || 0 }}</div>
                     </div>
                     <div class="label">正在使用车位</div>
                 </el-col>
@@ -79,7 +79,9 @@ export default {
         return {
             // 查询条件
             form: {
-                user: ''
+                area: '',
+                carNumber: undefined,
+                status: undefined
             },
             total: 1,
             loading: false,

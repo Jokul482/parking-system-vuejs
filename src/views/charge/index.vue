@@ -4,25 +4,25 @@
             <el-row type="flex" class="ht-row">
                 <el-col>
                     <div class="content">
-                        <div class="num" style="color:#fa5555;">{{ divide(overview.totalCharge) }}</div>
+                        <div class="num" style="color:#fa5555;">{{ divide(overview.totalCharge) || 0 }}</div>
                     </div>
                     <div class="label">总收费</div>
                 </el-col>
                 <el-col>
                     <div class="content">
-                        <div class="num" style="color:#21d59b;">{{ divide(overview.aTotalCharge) }}</div>
+                        <div class="num" style="color:#21d59b;">{{ divide(overview.aTotalCharge) || 0  }}</div>
                     </div>
                     <div class="label">A区总收费</div>
                 </el-col>
                 <el-col>
                     <div class="content">
-                        <div class="num" style="color:#1989fa;">{{ divide(overview.bTotalCharge) }}</div>
+                        <div class="num" style="color:#1989fa;">{{ divide(overview.bTotalCharge) || 0  }}</div>
                     </div>
                     <div class="label">B区总收费</div>
                 </el-col>
                 <el-col>
                     <div class="content">
-                        <div class="num" style="color:rgb(255, 120, 1);">{{ divide(overview.cTotalCharge) }}</div>
+                        <div class="num" style="color:rgb(255, 120, 1);">{{ divide(overview.cTotalCharge) || 0  }}</div>
                     </div>
                     <div class="label">C区总收费</div>
                 </el-col>
