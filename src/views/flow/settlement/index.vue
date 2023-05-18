@@ -19,7 +19,7 @@
                         </el-select>
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="primary" @click="queryParams.pageNum = 1, getList()">搜索</el-button>
+                        <el-button type="primary" @click="form.pageNum = 1, getList()">搜索</el-button>
                         <el-button @click="cancel('searchRef')">重置</el-button>
                     </el-form-item>
                 </div>
@@ -65,8 +65,8 @@
                 </el-table-column>
             </el-table>
             <!-- 分页 -->
-            <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum"
-                :limit.sync="queryParams.pageSize" @pagination="getList" />
+            <pagination v-show="total > 0" :total="total" :page.sync="form.pageNum"
+                :limit.sync="form.pageSize" @pagination="getList" />
         </el-card>
         <!-- 结算弹窗 -->
         <el-dialog title="结算离场" :visible.sync="dialogVisible" width="30%">
@@ -101,6 +101,8 @@ export default {
                 carNumber: undefined, // 车位号
                 phone: undefined, // 手机号
                 status: undefined, // 支付状态
+                pageNum: 1,
+                pageSize: 10
             },
             total: 0,
             queryParams: {

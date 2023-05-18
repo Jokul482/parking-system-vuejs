@@ -42,7 +42,7 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" @click="queryParams.pageNum = 1,getList()">搜索</el-button>
+                    <el-button type="primary" @click="form.pageNum = 1,getList()">搜索</el-button>
                     <el-button @click="cancel('searchRef')">重置</el-button>
                 </el-form-item>
             </el-form>
@@ -64,8 +64,8 @@
                 </el-table-column>
             </el-table>
             <!-- 分页 -->
-            <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum"
-                :limit.sync="queryParams.pageSize" @pagination="getList" />
+            <pagination v-show="total > 0" :total="total" :page.sync="form.pageNum"
+                :limit.sync="form.pageSize" @pagination="getList" />
         </el-card>
     </div>
 </template>
@@ -81,7 +81,9 @@ export default {
             form: {
                 area: '',
                 carNumber: undefined,
-                status: undefined
+                status: undefined,
+                pageNum: 1,
+                pageSize: 10
             },
             total: 0,
             loading: false,
