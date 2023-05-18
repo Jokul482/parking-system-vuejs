@@ -31,7 +31,12 @@ export default {
       'sidebar'
     ]),
     routes() {
-      return this.$router.options.routes
+      let roleType = this.$store.state.user.roleType;
+      let routes = this.$router.options.routes;
+      if(roleType === 1) {
+        routes = routes.filter(item => item.path !== "/user" && item.path !== "/charge")
+      }
+      return routes
     },
     activeMenu() {
       const route = this.$route

@@ -237,12 +237,12 @@ export default {
 
         },
         // 获取分页多选框的数据
-        // handleSelectionAll(val) {
-        //     this.multipleSelection[this.queryParams.pageNum] = val;
-        // },
-        // handleSelection(val) {
-        //     this.multipleSelection[this.queryParams.pageNum] = val;
-        // }
+        handleSelectionAll(val) {
+            // this.multipleSelection[this.queryParams.pageNum] = val;
+        },
+        handleSelection(val) {
+            // this.multipleSelection[this.queryParams.pageNum] = val;
+        }
     }
 }
 
