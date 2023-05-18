@@ -67,7 +67,7 @@
             </el-table>
             <!-- 分页 -->
             <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum"
-                :limit.sync="queryParams.pageSize" @pagination="getList" />
+                :limit.sync="queryParams.pageSize" @pagination="getList" layout="prev, pager, next" />
         </el-card>
     </div>
 </template>

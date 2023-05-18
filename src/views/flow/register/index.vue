@@ -64,7 +64,7 @@
             </el-table>
             <!-- 分页 -->
             <pagination v-show="total > 0" :total="total" :page.sync="form.pageNum"
-                :limit.sync="form.pageSize" @pagination="getList" />
+                :limit.sync="form.pageSize" @pagination="getList" layout="prev, pager, next" />
         </el-card>
 
         <!-- 添加车辆 -->
