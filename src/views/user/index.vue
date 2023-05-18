@@ -12,7 +12,7 @@
                     <el-input v-model="form.username" placeholder="请输入用户名"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" @click="(queryParams.pageNum = 1), getList()">搜索</el-button>
+                    <el-button type="primary" @click="(form.pageNum = 1), getList()">搜索</el-button>
                     <el-button @click="cancel('searchRef')">重置</el-button>
                 </el-form-item>
             </el-form>
@@ -53,8 +53,8 @@
                 </el-table-column>
             </el-table>
             <!-- 分页 -->
-            <!-- <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum"
-                :limit.sync="queryParams.pageSize" @pagination="getList" /> -->
+            <pagination v-show="total > 0" :total="total" :page.sync="form.pageNum"
+                :limit.sync="form.pageSize" @pagination="getList" />
         </el-card>
 
         <!-- 添加用户 -->
@@ -104,6 +104,8 @@ export default {
             form: {
                 role_type: "",
                 username: "",
+                pageNum: 1,
+                pageSize: 10,
             },
             option: roleType,
             total: 0,
@@ -141,10 +143,7 @@ export default {
     methods: {
         getList() {
             this.loading = true;
-            getUserList({
-                role_type: this.form?.role_type,
-                username: this.form?.username,
-            })
+            getUserList(this.form)
                 .then(({ data, total }) => {
                     this.loading = false;
                     this.tableData = data;
