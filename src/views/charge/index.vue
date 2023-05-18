@@ -66,8 +66,8 @@
                 </el-table-column>
             </el-table>
             <!-- 分页 -->
-            <!-- <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum"
-                :limit.sync="queryParams.pageSize" @pagination="getList" /> -->
+            <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum"
+                :limit.sync="queryParams.pageSize" @pagination="getList" />
         </el-card>
     </div>
 </template>
@@ -85,7 +85,7 @@ export default {
                 area: "",
                 carNumber: ""
             },
-            total: 1,
+            total: 0,
             getType: getType,
             getArea: getArea,
             divide: divide,
@@ -105,8 +105,9 @@ export default {
     },
     methods: {
         getList() {
-            getChargeList(this.form).then(({data}) => {
+            getChargeList(this.form).then(({data,total}) => {
                 this.tableData = data;
+                this.total = total;
             })
         },
         getData() {

@@ -128,7 +128,7 @@ export default {
             // carType: carType,
             getCarType: getCarType,
             vehicleArea: vehicleArea,
-            total: 1,
+            total: 0,
             queryParams: {
                 pageNum: 1,
                 pageSize: 10
@@ -167,8 +167,9 @@ export default {
     },
     methods: {
         getList() {
-            getRegistrationList(this.form).then(({ data }) => {
+            getRegistrationList(this.form).then(({ data, total }) => {
                 this.tableData = data;
+                this.total = total;
             })
         },
         addCar() {

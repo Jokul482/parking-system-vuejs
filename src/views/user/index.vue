@@ -106,7 +106,7 @@ export default {
                 username: "",
             },
             option: roleType,
-            total: 1,
+            total: 0,
             queryParams: {
                 pageNum: 1,
                 pageSize: 10,
@@ -145,9 +145,10 @@ export default {
                 role_type: this.form?.role_type,
                 username: this.form?.username,
             })
-                .then(({ data }) => {
+                .then(({ data, total }) => {
                     this.loading = false;
                     this.tableData = data;
+                    this.total = total;
                 })
                 .catch((err) => (this.loading = false));
         },

@@ -83,7 +83,7 @@ export default {
                 carNumber: undefined,
                 status: undefined
             },
-            total: 1,
+            total: 0,
             loading: false,
             queryParams: {
                 pageNum: 1,
@@ -117,8 +117,9 @@ export default {
     },
     methods: {
         getList() {
-            getVehicleList(this.form).then(({data}) => {
+            getVehicleList(this.form).then(({data, total}) => {
                 this.tableData = data;
+                this.total = total;
             })
         },
         getData() {

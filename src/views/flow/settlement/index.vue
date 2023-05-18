@@ -102,7 +102,7 @@ export default {
                 phone: undefined, // 手机号
                 status: undefined, // 支付状态
             },
-            total: 1,
+            total: 0,
             queryParams: {
                 pageNum: 1,
                 pageSize: 10
@@ -122,8 +122,9 @@ export default {
     },
     methods: {
         getList() {
-            getSettlementList(this.form).then(({ data }) => {
+            getSettlementList(this.form).then(({ data,total }) => {
                 this.tableData = data;
+                this.total = total;
             })
         },
         // 确认离场
