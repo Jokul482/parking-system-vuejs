@@ -52,9 +52,15 @@ export default {
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBar')
     },
-    async logout() {
-      await this.$store.dispatch('user/logout')
-      this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+    logout() {
+      this.$confirm('此操作将退出登录, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async () => {
+        await this.$store.dispatch('user/logout')
+        this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+      }).catch((err) => console.log(err))
     }
   }
 }

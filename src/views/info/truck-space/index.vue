@@ -7,16 +7,18 @@
                 </el-form-item>
                 <el-form-item label="车位区域：" prop="area">
                     <el-select v-model="form.area" placeholder="请选择车位区域" style="width: 240px;">
-                        <el-option v-for="item in vehicleArea" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                        <el-option v-for="item in vehicleArea" :key="item.value" :label="item.label"
+                            :value="item.value"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="车位状态：" prop="status">
                     <el-select v-model="form.status" placeholder="请选择车位状态" style="width: 240px;">
-                        <el-option v-for="item in vehicleStatus" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                        <el-option v-for="item in vehicleStatus" :key="item.value" :label="item.label"
+                            :value="item.value"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" @click="queryParams.pageNum = 1,getList()">搜索</el-button>
+                    <el-button type="primary" @click="queryParams.pageNum = 1, getList()">搜索</el-button>
                     <el-button @click="cancel('searchRef')">重置</el-button>
                 </el-form-item>
             </el-form>
@@ -29,7 +31,8 @@
                     <el-button type="primary" @click="exportExcel">一键导出</el-button>
                 </div>
             </div>
-            <el-table :data="tableData" border style="width: 100%">
+            <el-table :data="tableData" border ref="tableRef" @select="handleSelection"
+        @select-all="handleSelectionAll">
                 <el-table-column type="index" label="序号" width="50">
                 </el-table-column>
                 <el-table-column prop="carNumber" label="车位号">
@@ -66,22 +69,27 @@
                 empty-text="暂无数据">
                 <el-form-item label="区域：" prop="area">
                     <el-select v-model="ruleForm.area" placeholder="请选择车位区域" style="width: 240px;">
-                        <el-option v-for="item in vehicleArea" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                        <el-option v-for="item in vehicleArea" :key="item.value" :label="item.label"
+                            :value="item.value"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="车位号：" prop="carNumber">
-                    <el-input v-model="ruleForm.carNumber" :disabled="!ruleForm.area" placeholder="请输入车位号" autocomplete="off" style="width: 240px;"></el-input>
+                    <el-input v-model="ruleForm.carNumber" :disabled="!ruleForm.area" placeholder="请输入车位号"
+                        autocomplete="off" style="width: 240px;"></el-input>
                 </el-form-item>
                 <el-form-item label="车位类型：" prop="type">
                     <el-select v-model="ruleForm.type" placeholder="请选择车位类型" style="width: 240px;">
-                        <el-option v-for="item in vehicleType" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                        <el-option v-for="item in vehicleType" :key="item.value" :label="item.label"
+                            :value="item.value"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="每小时收费：" prop="chargeHour">
-                    <el-input v-model="ruleForm.chargeHour" placeholder="请输入每小时收费额" autocomplete="off" style="width: 240px;"></el-input>
+                    <el-input v-model="ruleForm.chargeHour" placeholder="请输入每小时收费额" autocomplete="off"
+                        style="width: 240px;"></el-input>
                 </el-form-item>
                 <el-form-item label="备注：" prop="remarks">
-                    <el-input v-model="ruleForm.remarks" placeholder="请输入备注" autocomplete="off" style="width: 240px;"></el-input>
+                    <el-input v-model="ruleForm.remarks" placeholder="请输入备注" autocomplete="off"
+                        style="width: 240px;"></el-input>
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
@@ -134,7 +142,8 @@ export default {
                 area: { required: true, message: '请选择车位区域', trigger: ['blur', 'change'] },
                 type: { required: true, message: '请选择车位类型', trigger: 'blur' },
                 chargeHour: { required: true, message: '请输入每小时收费额', trigger: 'blur' },
-            }
+            },
+            multipleSelection: {}
         };
     },
     created() {
@@ -142,8 +151,19 @@ export default {
     },
     methods: {
         getList() {
-            getVehicleList(this.form).then(({status, data}) => {
+            getVehicleList(this.form).then(({ status, data }) => {
                 this.tableData = data;
+                // setTimeout(() => {
+                //     if (this.multipleSelection[this.queryParams.pageNum]) {
+                //         this.multipleSelection[this.queryParams.pageNum].forEach((row) => {
+                //             res.rows.forEach((list) => {
+                //                 if (list.id == row.id) {
+                //                     this.$refs.tableRef.toggleRowSelection(list, true);
+                //                 }
+                //             });
+                //         });
+                //     }
+                // }, 0);
             })
         },
         // 添加车位
@@ -215,7 +235,14 @@ export default {
         // 导出数据Excel
         exportExcel() {
 
-        }
+        },
+        // 获取分页多选框的数据
+        // handleSelectionAll(val) {
+        //     this.multipleSelection[this.queryParams.pageNum] = val;
+        // },
+        // handleSelection(val) {
+        //     this.multipleSelection[this.queryParams.pageNum] = val;
+        // }
     }
 }
 
