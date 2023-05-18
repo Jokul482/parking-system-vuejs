@@ -4,25 +4,25 @@
             <el-row type="flex" class="ht-row">
                 <el-col>
                     <div class="content">
-                        <div class="num" style="color:#fa5555;">111</div>
+                        <div class="num" style="color:#fa5555;">{{ divide(overview.totalCharge) }}</div>
                     </div>
                     <div class="label">总收费</div>
                 </el-col>
                 <el-col>
                     <div class="content">
-                        <div class="num" style="color:#21d59b;">111</div>
+                        <div class="num" style="color:#21d59b;">{{ divide(overview.aTotalCharge) }}</div>
                     </div>
                     <div class="label">A区总收费</div>
                 </el-col>
                 <el-col>
                     <div class="content">
-                        <div class="num" style="color:#1989fa;">111</div>
+                        <div class="num" style="color:#1989fa;">{{ divide(overview.bTotalCharge) }}</div>
                     </div>
                     <div class="label">B区总收费</div>
                 </el-col>
                 <el-col>
                     <div class="content">
-                        <div class="num" style="color:rgb(255, 120, 1);">111</div>
+                        <div class="num" style="color:rgb(255, 120, 1);">{{ divide(overview.cTotalCharge) }}</div>
                     </div>
                     <div class="label">C区总收费</div>
                 </el-col>
@@ -42,7 +42,7 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label="车位号：" prop="carNumber">
-                    <el-input v-model="form.carNumber" placeholder="请输入车牌号" style="width: 240px;"></el-input>
+                    <el-input v-model="form.carNumber" placeholder="请输入车位号" style="width: 240px;"></el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="queryParams.pageNum = 1, getList()">搜索</el-button>
@@ -60,9 +60,9 @@
                 <el-table-column prop="type" label="车位类型">
                     <template v-slot="{ row, column }">{{ getType(row[column.property]) }}</template>
                 </el-table-column>
-                <el-table-column prop="stopNum" label="今日停车量">
+                <el-table-column prop="parkQuantity" label="今日停车量">
                 </el-table-column>
-                <el-table-column prop="amount" label="今日收费(￥)">
+                <el-table-column prop="todayCharge" label="今日收费(￥)">
                 </el-table-column>
             </el-table>
             <!-- 分页 -->
@@ -73,8 +73,9 @@
 </template>
 
 <script>
-import { getChargeList } from "@/api/charge"
+import { getChargeList, getOverviewData } from "@/api/charge"
 import { getType, getArea } from "@/utils/basic-dictionary"
+import { divide } from "@/utils/index"
 export default {
     components: {},
     data() {
@@ -87,33 +88,30 @@ export default {
             total: 1,
             getType: getType,
             getArea: getArea,
+            divide: divide,
             queryParams: {
                 pageNum: 1,
                 pageSize: 10
             },
-            tableData: [
-                {
-                    id: 1,
-                    area: 'A区',
-                    carNumber: 'A10',
-                    type: '小型车',
-                    chargeHour: '3',
-                    parkQuantity: '24',
-                    createTime: '2023-03-31 18:00:00',
-                    status: '1',
-                }
-            ],
+            tableData: [],
+            overview: {},
             activeName: 'second',
             loading: false
         };
     },
     created() {
         this.getList();
+        this.getData();
     },
     methods: {
         getList() {
             getChargeList(this.form).then(({data}) => {
                 this.tableData = data;
+            })
+        },
+        getData() {
+            getOverviewData().then(({data}) => {
+                this.overview = data;
             })
         },
         handleClick(tab, event) {

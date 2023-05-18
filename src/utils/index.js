@@ -131,3 +131,15 @@ export function timeTransformation(e) {
   s = s < 10 ? ('0' + s) : s;
   return y + '-' + m + '-' + d + ' ' + h + ':' + min + ':' + s;//拼在一起
 }
+
+export function divide(str){
+  if(str === null) return 0;
+  let num = Number(str)
+  return num === 0 || Number.isNaN(num) ? str : num.toLocaleString()
+}
+
+export function divider(data,row){
+  let str = data[row.property]
+  let num = Number(str)
+  return num === 0 || Number.isNaN(num) ? str :  num.toLocaleString()
+}

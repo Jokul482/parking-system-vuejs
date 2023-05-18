@@ -50,8 +50,8 @@
                 </el-table-column>
                 <el-table-column fixed="right" label="操作" width="180" align="center">
                     <template slot-scope="scope">
-                        <el-button type="text" @click="handleUpdate(scope.row.id)" v-if="scope.row.status !==1">编辑</el-button>
-                        <el-button type="text" @click="handleDelete(scope.row.id)" v-if="scope.row.status !==2">删除</el-button>
+                        <el-button type="text" @click="handleUpdate(scope.row.id)">编辑</el-button>
+                        <el-button type="text" @click="handleDelete(scope.row.id)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>

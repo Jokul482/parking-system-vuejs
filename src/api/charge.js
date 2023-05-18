@@ -11,3 +11,12 @@ export function getChargeList(params) {
         params
     })
 }
+
+// 总收费概览
+export function getOverviewData() {
+    return request({
+        url: '/my/charge/getOverviewData',
+        method: 'get',
+        headers
+    })
+}
