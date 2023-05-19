@@ -54,7 +54,7 @@
             </el-table>
             <!-- 分页 -->
             <pagination v-show="total > 0" :total="total" :page.sync="form.pageNum"
-                :limit.sync="form.pageSize" @pagination="getList" layout="prev, pager, next" />
+                :limit.sync="form.pageSize" @pagination="getList" />
         </el-card>
 
         <!-- 添加用户 -->
@@ -105,7 +105,7 @@ export default {
                 role_type: "",
                 username: "",
                 pageNum: 1,
-                pageSize: 1,
+                pageSize: 10,
             },
             option: roleType,
             total: 0,
