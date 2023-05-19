@@ -25,7 +25,7 @@
         <el-card class="box-card mt-24">
             <div slot="header" class="card-center">
                 <span>车位统计列表</span>
-                <el-button type="primary" @click="exportExcel">一键导出</el-button>
+                <el-button type="primary" @click="exportExcel" :loading="exportLoading">一键导出</el-button>
             </div>
             <el-form :inline="true" :model="form" ref="searchRef" class="demo-form-inline">
                 <el-form-item label="区域：" prop="area">
@@ -46,7 +46,9 @@
                     <el-button @click="cancel('searchRef')">重置</el-button>
                 </el-form-item>
             </el-form>
-            <el-table :data="tableData" border style="width: 100%">
+            <el-table :data="tableData" border style="width: 100%" ref="tableRef" @select="handleSelection"
+                @select-all="handleSelectionAll">
+                <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column type="index" label="序号" width="50">
                 </el-table-column>
                 <el-table-column prop="area" label="区域">
@@ -60,12 +62,12 @@
                 <el-table-column prop="type" label="车位类型">
                     <template v-slot="{ row, column }">{{ getType(row[column.property]) }}</template>
                 </el-table-column>
-                <el-table-column prop="chargeHour" label="每小时收费(￥)">
+                <el-table-column prop="chargeHour" label="每小时收费(元)">
                 </el-table-column>
             </el-table>
             <!-- 分页 -->
             <pagination v-show="total > 0" :total="total" :page.sync="form.pageNum"
-                :limit.sync="form.pageSize" @pagination="getList" layout="prev, pager, next" />
+                :limit.sync="form.pageSize" @pagination="getList" />
         </el-card>
     </div>
 </template>
@@ -73,6 +75,7 @@
 <script>
 import { getVehicleList, getStatisticsData } from "@/api/vehicle";
 import { vehicleArea, getArea, getType, vehicleStatus } from "@/utils/basic-dictionary"
+import saveExcel from '@/utils/saveExcel.js'
 export default {
     components: {},
     data() {
@@ -83,14 +86,10 @@ export default {
                 carNumber: undefined,
                 status: undefined,
                 pageNum: 1,
-                pageSize: 10
+                pageSize: 2
             },
             total: 0,
             loading: false,
-            queryParams: {
-                pageNum: 1,
-                pageSize: 10
-            },
             vehicleArea: vehicleArea,
             vehicleStatus: vehicleStatus,
             getArea: getArea,
@@ -110,7 +109,10 @@ export default {
                 ],
                 nickname: { required: true, message: '请输入昵称', trigger: 'blur' },
                 email: { required: true, message: '请输入邮箱', trigger: 'blur' },
-            }
+            },
+            exportLoading: false,
+            multipleSelection: {},
+            exportList: []
         };
     },
     created() {
@@ -122,6 +124,17 @@ export default {
             getVehicleList(this.form).then(({data, total}) => {
                 this.tableData = data;
                 this.total = total;
+                setTimeout(() => {
+                    if (this.multipleSelection[this.form.pageNum]) {
+                        this.multipleSelection[this.form.pageNum].forEach((row) => {
+                            data.forEach((list) => {
+                                if (list.id == row.id) {
+                                    this.$refs.tableRef.toggleRowSelection(list, true);
+                                }
+                            });
+                        });
+                    }
+                }, 0);
             })
         },
         getData() {
@@ -135,7 +148,57 @@ export default {
             this.getList();
         },
         exportExcel() {
-
+            this.exportLoading = true;
+            this.exportList = [];
+            for (let key in this.multipleSelection) {
+                this.multipleSelection[key].forEach(item => {
+                    if (this.exportList.indexOf(item) == -1) {
+                        this.exportList.push(item)
+                    }
+                })
+            }
+            if (this.exportList.length === 0) {
+                this.exportLoading = false;
+                this.msgWarning('请选择需要导出的车辆登记信息!');
+            } else {
+                const options = [{
+                    key: '区域',
+                    value: 'area'
+                }, {
+                    key: '车位号',
+                    value: 'carNumber'
+                }, {
+                    key: '车位状态',
+                    value: 'status'
+                }, {
+                    key: '车位类型',
+                    value: 'type'
+                }, {
+                    key: '每小时收费(元)',
+                    value: 'chargeHour'
+                }]
+                this.exportList.forEach(item => {
+                    if (item.area == "1") item.area = 'A区';
+                    if (item.area == "2") item.area = 'B区';
+                    if (item.area == "3") item.area = 'C区';
+                    if (item.type == 1) item.type = '小型车车位';
+                    if (item.type == 2) item.type = '中型车车位';
+                    if (item.type == 3) item.type = '大型车车位';
+                    if (item.status == 1) item.status = '空闲'
+                    else item.status = '正在使用'
+                })
+                saveExcel(options, this.exportList, '车位信息数据统计');
+                this.exportLoading = false;
+                this.multipleSelection = {};
+                this.getList();
+            }
+        },
+        // 获取分页多选框的数据
+        handleSelectionAll(val) {
+            this.multipleSelection[this.form.pageNum] = val;
+        },
+        handleSelection(val) {
+            this.multipleSelection[this.form.pageNum] = val;
         }
     }
 }

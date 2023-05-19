@@ -28,9 +28,11 @@
         <el-card class="box-card mt-24">
             <div slot="header" class="card-center">
                 <span>车辆结算列表</span>
-                <el-button type="primary" @click="exportExcel">一键导出</el-button>
+                <el-button type="primary" @click="exportExcel" :loading="exportLoading">一键导出</el-button>
             </div>
-            <el-table :data="tableData" border style="width: 100%">
+            <el-table :data="tableData" border style="width: 100%" ref="tableRef" @select="handleSelection"
+                @select-all="handleSelectionAll">
+                <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column type="index" label="序号" width="50">
                 </el-table-column>
                 <el-table-column prop="plateNumber" label="车牌号">
@@ -41,18 +43,18 @@
                 </el-table-column>
                 <el-table-column prop="phone" label="车主电话">
                 </el-table-column>
-                <el-table-column prop="chargeHour" label="每小时收费(￥)">
+                <el-table-column prop="chargeHour" label="每小时收费(元)">
                 </el-table-column>
                 <el-table-column prop="exittime" label="入场时间">
                 </el-table-column>
                 <el-table-column prop="leavingTime" label="离场时间">
                     <template v-slot="{ row, column }">{{ row[column.property] ? row[column.property] : "--" }}</template>
                 </el-table-column>
-                <el-table-column prop="duration" label="停放时长">
-                    <template v-slot="{ row, column }">{{ row[column.property] ? `${row[column.property]}小时` : "--" }}</template>
+                <el-table-column prop="duration" label="停放时长(小时)">
+                    <template v-slot="{ row, column }">{{ row[column.property] ? `${row[column.property]}` : "--" }}</template>
                 </el-table-column>
-                <el-table-column prop="amount" label="应收费金额">
-                    <template v-slot="{ row, column }">{{ row[column.property] ? `${row[column.property]}元` : "--" }}</template>
+                <el-table-column prop="amount" label="应收费金额(元)">
+                    <template v-slot="{ row, column }">{{ row[column.property] ? `${row[column.property]}` : "--" }}</template>
                 </el-table-column>
                 <el-table-column prop="status" label="是否支付">
                     <template v-slot="{ row, column }">{{ row[column.property] == 1 ? '已支付' : "未支付" }}</template>
@@ -66,7 +68,7 @@
             </el-table>
             <!-- 分页 -->
             <pagination v-show="total > 0" :total="total" :page.sync="form.pageNum"
-                :limit.sync="form.pageSize" @pagination="getList" layout="prev, pager, next" />
+                :limit.sync="form.pageSize" @pagination="getList" />
         </el-card>
         <!-- 结算弹窗 -->
         <el-dialog title="结算离场" :visible.sync="dialogVisible" width="30%">
@@ -91,6 +93,7 @@
 <script>
 import { getSettlementList, postSettlementDeparture } from "@/api/access"
 import { timeTransformation } from "@/utils/index"
+import saveExcel from '@/utils/saveExcel.js'
 export default {
     components: {},
     data() {
@@ -102,13 +105,9 @@ export default {
                 phone: undefined, // 手机号
                 status: undefined, // 支付状态
                 pageNum: 1,
-                pageSize: 10
+                pageSize: 2
             },
             total: 0,
-            queryParams: {
-                pageNum: 1,
-                pageSize: 10
-            },
             tableData: [],
             dialogVisible: false,
             parkDuration: undefined,
@@ -117,6 +116,9 @@ export default {
             amount: undefined,
             id: undefined,
             carNumber: undefined,
+            exportLoading: false,
+            multipleSelection: {},
+            exportList: []
         };
     },
     created() {
@@ -127,6 +129,17 @@ export default {
             getSettlementList(this.form).then(({ data,total }) => {
                 this.tableData = data;
                 this.total = total;
+                setTimeout(() => {
+                    if (this.multipleSelection[this.form.pageNum]) {
+                        this.multipleSelection[this.form.pageNum].forEach((row) => {
+                            data.forEach((list) => {
+                                if (list.id == row.id) {
+                                    this.$refs.tableRef.toggleRowSelection(list, true);
+                                }
+                            });
+                        });
+                    }
+                }, 0);
             })
         },
         // 确认离场
@@ -171,7 +184,66 @@ export default {
             this.getList();
         },
         exportExcel() {
-
+            this.exportLoading = true;
+            this.exportList = [];
+            for (let key in this.multipleSelection) {
+                this.multipleSelection[key].forEach(item => {
+                    if (this.exportList.indexOf(item) == -1) {
+                        this.exportList.push(item)
+                    }
+                })
+            }
+            if (this.exportList.length === 0) {
+                this.exportLoading = false;
+                this.msgWarning('请选择需要导出的车辆登记信息!');
+            } else {
+                const options = [{
+                    key: '车牌号',
+                    value: 'plateNumber'
+                }, {
+                    key: '车位号',
+                    value: 'carNumber'
+                }, {
+                    key: '车主姓名',
+                    value: 'ownerName'
+                }, {
+                    key: '车主电话',
+                    value: 'phone'
+                }, {
+                    key: '每小时收费(元)',
+                    value: 'chargeHour'
+                }, {
+                    key: '入场时间',
+                    value: 'exittime'
+                }, {
+                    key: '离场时间',
+                    value: 'leavingTime'
+                },{
+                    key: '停放时长(小时)',
+                    value: 'duration'
+                },{
+                    key: '应收费金额(元)',
+                    value: 'amount'
+                }, {
+                    key: '是否支付',
+                    value: 'status'
+                }]
+                this.exportList.forEach(item => {
+                    if (item.status == 1) item.status = '已支付'
+                    else item.status = '未支付'
+                });
+                saveExcel(options, this.exportList, '车辆结算信息');
+                this.exportLoading = false;
+                this.multipleSelection = {};
+                this.getList();
+            }
+        },
+        // 获取分页多选框的数据
+        handleSelectionAll(val) {
+            this.multipleSelection[this.form.pageNum] = val;
+        },
+        handleSelection(val) {
+            this.multipleSelection[this.form.pageNum] = val;
         }
     }
 }

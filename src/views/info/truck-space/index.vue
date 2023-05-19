@@ -28,11 +28,12 @@
                 <span>车位信息列表</span>
                 <div>
                     <el-button type="primary" @click="addVehicle">添加</el-button>
-                    <el-button type="primary" @click="exportExcel">一键导出</el-button>
+                    <el-button type="primary" @click="exportExcel" :loading="exportLoading">一键导出</el-button>
                 </div>
             </div>
             <el-table :data="tableData" border ref="tableRef" @select="handleSelection"
         @select-all="handleSelectionAll">
+                <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column type="index" label="序号" width="50">
                 </el-table-column>
                 <el-table-column prop="carNumber" label="车位号">
@@ -40,7 +41,7 @@
                 <el-table-column prop="area" label="车位区域">
                     <template v-slot="{ row, column }">{{ getArea(row[column.property]) }}</template>
                 </el-table-column>
-                <el-table-column prop="chargeHour" label="每小时收费(￥)">
+                <el-table-column prop="chargeHour" label="每小时收费(元)">
                 </el-table-column>
                 <el-table-column prop="type" label="车位类型">
                     <template v-slot="{ row, column }">{{ getType(row[column.property]) }}</template>
@@ -60,7 +61,7 @@
             </el-table>
             <!-- 分页 -->
             <pagination v-show="total > 0" :total="total" :page.sync="form.pageNum"
-                :limit.sync="form.pageSize" @pagination="getList" layout="prev, pager, next" />
+                :limit.sync="form.pageSize" @pagination="getList" />
         </el-card>
 
         <!-- 添加车位 -->
@@ -103,6 +104,7 @@
 <script>
 import { vehicleArea, vehicleType, vehicleStatus, getArea, getType } from "@/utils/basic-dictionary"
 import { getVehicleList, postAddVehicle, getVehicleInfo, postUpdateVehicleInfo, deleteVehicleInfo } from "@/api/vehicle"
+import saveExcel from '@/utils/saveExcel.js'
 export default {
     components: {},
     data() {
@@ -113,7 +115,7 @@ export default {
                 carNumber: "",
                 status: "",
                 pageNum: 1,
-                pageSize: 10
+                pageSize: 2
             },
             total: 0,
             queryParams: {
@@ -145,7 +147,10 @@ export default {
                 type: { required: true, message: '请选择车位类型', trigger: 'blur' },
                 chargeHour: { required: true, message: '请输入每小时收费额', trigger: 'blur' },
             },
-            multipleSelection: {}
+            multipleSelection: {},
+            exportLoading: false,
+            multipleSelection: {},
+            exportList: []
         };
     },
     created() {
@@ -156,17 +161,17 @@ export default {
             getVehicleList(this.form).then(({ data, total }) => {
                 this.tableData = data;
                 this.total = total;
-                // setTimeout(() => {
-                //     if (this.multipleSelection[this.queryParams.pageNum]) {
-                //         this.multipleSelection[this.queryParams.pageNum].forEach((row) => {
-                //             res.rows.forEach((list) => {
-                //                 if (list.id == row.id) {
-                //                     this.$refs.tableRef.toggleRowSelection(list, true);
-                //                 }
-                //             });
-                //         });
-                //     }
-                // }, 0);
+                setTimeout(() => {
+                    if (this.multipleSelection[this.form.pageNum]) {
+                        this.multipleSelection[this.form.pageNum].forEach((row) => {
+                            data.forEach((list) => {
+                                if (list.id == row.id) {
+                                    this.$refs.tableRef.toggleRowSelection(list, true);
+                                }
+                            });
+                        });
+                    }
+                }, 0);
             })
         },
         // 添加车位
@@ -237,14 +242,60 @@ export default {
         },
         // 导出数据Excel
         exportExcel() {
-
+            this.exportLoading = true;
+            this.exportList = [];
+            for (let key in this.multipleSelection) {
+                this.multipleSelection[key].forEach(item => {
+                    if (this.exportList.indexOf(item) == -1) {
+                        this.exportList.push(item)
+                    }
+                })
+            }
+            if (this.exportList.length === 0) {
+                this.exportLoading = false;
+                this.msgWarning('请选择需要导出的车辆登记信息!');
+            } else {
+                const options = [{
+                    key: '车位号',
+                    value: 'carNumber'
+                }, {
+                    key: '区域',
+                    value: 'area'
+                }, {
+                    key: '每小时收费(元)',
+                    value: 'chargeHour'
+                }, {
+                    key: '车位类型',
+                    value: 'type'
+                }, {
+                    key: '车位状态',
+                    value: 'status'
+                }, {
+                    key: '备注',
+                    value: 'remarks'
+                }]
+                this.exportList.forEach(item => {
+                    if (item.area == "1") item.area = 'A区';
+                    if (item.area == "2") item.area = 'B区';
+                    if (item.area == "3") item.area = 'C区';
+                    if (item.type == 1) item.type = '小型车车位';
+                    if (item.type == 2) item.type = '中型车车位';
+                    if (item.type == 3) item.type = '大型车车位';
+                    if (item.status == 1) item.status = '空闲'
+                    else item.status = '正在使用'
+                })
+                saveExcel(options, this.exportList, '车位信息');
+                this.exportLoading = false;
+                this.multipleSelection = {};
+                this.getList();
+            }
         },
         // 获取分页多选框的数据
         handleSelectionAll(val) {
-            // this.multipleSelection[this.queryParams.pageNum] = val;
+            this.multipleSelection[this.form.pageNum] = val;
         },
         handleSelection(val) {
-            // this.multipleSelection[this.queryParams.pageNum] = val;
+            this.multipleSelection[this.form.pageNum] = val;
         }
     }
 }

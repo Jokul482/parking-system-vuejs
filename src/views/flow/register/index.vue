@@ -30,10 +30,12 @@
                 <span>车辆登记列表</span>
                 <div>
                     <el-button type="primary" @click="addCar">添加</el-button>
-                    <el-button type="primary" @click="exportExcel">一键导出</el-button>
+                    <el-button type="primary" @click="exportExcel" :loading="exportLoading">一键导出</el-button>
                 </div>
             </div>
-            <el-table :data="tableData" border style="width: 100%">
+            <el-table :data="tableData" border style="width: 100%" ref="tableRef" @select="handleSelection"
+                @select-all="handleSelectionAll">
+                <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column type="index" label="序号" width="50">
                 </el-table-column>
                 <el-table-column prop="plateNumber" label="车牌号">
@@ -49,22 +51,24 @@
                 </el-table-column>
                 <el-table-column prop="exittime" label="入场时间">
                 </el-table-column>
-                <el-table-column prop="chargeHour" label="每小时收费(￥)">
+                <el-table-column prop="chargeHour" label="每小时收费(元)">
                     <template slot-scope="scope">{{ scope.row.chargeHour }}元</template>
                 </el-table-column>
                 <el-table-column prop="status" label="是否离场">
-                    <template slot-scope="scope">{{ scope.row.status == 1? '是' : '否' }}</template>
+                    <template slot-scope="scope">{{ scope.row.status == 1 ? '是' : '否' }}</template>
                 </el-table-column>
                 <el-table-column fixed="right" label="操作" width="180" align="center">
                     <template slot-scope="scope">
-                        <el-button type="text" @click="handleUpdate(scope.row.id)" v-if="scope.row.status !== 1">编辑</el-button>
-                        <el-button type="text" @click="handleDelete(scope.row.id)" v-if="scope.row.status !== 2">删除</el-button>
+                        <el-button type="text" @click="handleUpdate(scope.row.id)"
+                            v-if="scope.row.status !== 1">编辑</el-button>
+                        <el-button type="text" @click="handleDelete(scope.row.id)"
+                            v-if="scope.row.status !== 2">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
             <!-- 分页 -->
-            <pagination v-show="total > 0" :total="total" :page.sync="form.pageNum"
-                :limit.sync="form.pageSize" @pagination="getList" layout="prev, pager, next" />
+            <pagination v-show="total > 0" :total="total" :page.sync="form.pageNum" :limit.sync="form.pageSize"
+                @pagination="getList" />
         </el-card>
 
         <!-- 添加车辆 -->
@@ -75,12 +79,15 @@
                     <el-input v-model="ruleForm.plateNumber" placeholder="请选择车牌号" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="区域：" prop="area">
-                    <el-select v-model="ruleForm.area" placeholder="请选择车位区域" @change="handleVehicleList" style="width: 100%;">
-                        <el-option v-for="item in vehicleArea" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    <el-select v-model="ruleForm.area" placeholder="请选择车位区域" @change="handleVehicleList"
+                        style="width: 100%;">
+                        <el-option v-for="item in vehicleArea" :key="item.value" :label="item.label"
+                            :value="item.value"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="车位号：" prop="carNumber">
-                    <el-select v-model="ruleForm.carNumber" :disabled="!ruleForm.area" placeholder="请选择车位号" style="width: 100%;">
+                    <el-select v-model="ruleForm.carNumber" :disabled="!ruleForm.area" placeholder="请选择车位号"
+                        style="width: 100%;">
                         <el-option v-for="item in vehicleList" :key="item.id" :label="item.carNumber"
                             :value="item.carNumber" :disabled="item.disabled"></el-option>
                     </el-select>
@@ -98,8 +105,8 @@
                     </el-select>
                 </el-form-item> -->
                 <el-form-item label="入场时间：" prop="exittime">
-                    <el-date-picker v-model="ruleForm.exittime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" placeholder="选择日期"
-                        style="width: 100%;">
+                    <el-date-picker v-model="ruleForm.exittime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss"
+                        placeholder="选择日期" style="width: 100%;">
                     </el-date-picker>
                 </el-form-item>
             </el-form>
@@ -115,6 +122,7 @@
 import { vehicleArea } from "@/utils/basic-dictionary"
 import { getRegistrationList, postAddVehicle, getVehicleInfo, getRegistrationInfo, postRegistrationInfo, deleteRegistration } from "@/api/access";
 import { carType, getCarType } from "@/utils/basic-dictionary"
+import saveExcel from '@/utils/saveExcel.js'
 export default {
     components: {},
     data() {
@@ -125,7 +133,7 @@ export default {
                 carNumber: '',
                 phone: undefined,
                 pageNum: 1,
-                pageSize: 10
+                pageSize: 2
             },
             // carType: carType,
             getCarType: getCarType,
@@ -148,6 +156,9 @@ export default {
                 exittime: null
             },
             dialogVisible: false,
+            exportLoading: false,
+            multipleSelection: {},
+            exportList: [],
             rules: {
                 plateNumber: [
                     { required: true, message: '请输入车牌号', trigger: 'blur' },
@@ -172,6 +183,17 @@ export default {
             getRegistrationList(this.form).then(({ data, total }) => {
                 this.tableData = data;
                 this.total = total;
+                setTimeout(() => {
+                    if (this.multipleSelection[this.form.pageNum]) {
+                        this.multipleSelection[this.form.pageNum].forEach((row) => {
+                            data.forEach((list) => {
+                                if (list.id == row.id) {
+                                    this.$refs.tableRef.toggleRowSelection(list, true);
+                                }
+                            });
+                        });
+                    }
+                }, 0);
             })
         },
         addCar() {
@@ -188,7 +210,7 @@ export default {
         // 获取车位号
         handleVehicleList(e) {
             this.ruleForm.carNumber = "";
-            getVehicleInfo({id: e}).then(({ data }) => {
+            getVehicleInfo({ id: e }).then(({ data }) => {
                 this.vehicleList = data;
             })
         },
@@ -245,7 +267,63 @@ export default {
             this.getList();
         },
         exportExcel() {
-
+            this.exportLoading = true;
+            this.exportList = [];
+            for (let key in this.multipleSelection) {
+                this.multipleSelection[key].forEach(item => {
+                    if (this.exportList.indexOf(item) == -1) {
+                        this.exportList.push(item)
+                    }
+                })
+            }
+            if (this.exportList.length === 0) {
+                this.exportLoading = false;
+                this.msgWarning('请选择需要导出的车辆登记信息!');
+            } else {
+                const options = [{
+                    key: '车牌号',
+                    value: 'plateNumber'
+                }, {
+                    key: '车位号',
+                    value: 'carNumber'
+                }, {
+                    key: '车主姓名',
+                    value: 'ownerName'
+                }, {
+                    key: '车主电话',
+                    value: 'phone'
+                }, {
+                    key: '车辆类型',
+                    value: 'type'
+                }, {
+                    key: '入场时间',
+                    value: 'exittime'
+                }, {
+                    key: '每小时收费(元)',
+                    value: 'chargeHour'
+                }, {
+                    key: '是否离场',
+                    value: 'status'
+                }]
+                this.exportList.forEach(item => {
+                    if (item.type == 1) item.type = '小型车车位';
+                    if (item.type == 2) item.type = '中型车车位';
+                    if (item.type == 3) item.type = '大型车车位';
+                    if (item.status == 1) item.status = '是'
+                    else item.status = '否'
+                })
+                saveExcel(options, this.exportList, '车辆登记信息');
+                this.exportLoading = false;
+                this.multipleSelection = {};
+                this.getList();
+            }
+        },
+        // 获取分页多选框的数据
+        handleSelectionAll(val) {
+            this.multipleSelection[this.form.pageNum] = val;
+        },
+        handleSelection(val) {
+            this.multipleSelection[this.form.pageNum] = val;
         }
     }
 }
