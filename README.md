@@ -3,6 +3,8 @@
 **本项目修改自开源项目**[PanJiaChen-vue-admin-template](https://github.com/PanJiaChen/vue-admin-template)
 
 本项目采用B/S架构，前端使用Vue.js 2.6框架搭配Element UI组件库，后端[parking-system-nodejs](https://github.com/Jokul482/parking-system-nodejs)则依托Node.js及Express技术栈，实现了一个全面覆盖车辆进出管理、车位信息管理、收费统计与用户权限控制的综合性平台。本项目旨在为学生、开发者提供一个实践Node.js、Vue.js及全栈开发技能的学习样本。
+
+**如果该项目对您有用，不妨点个star**
 ## 功能特性
 ### 核心功能
 - **车辆进出管理**：支持车辆登记、出场结算信息处理，实现车辆信息的快速录入、查询与维护，优化车辆流动效率。
